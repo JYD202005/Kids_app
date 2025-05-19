@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  audioplayers: ^5.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -21,3 +21,10 @@ flutter:
     - assets/images/readcol.png
     - assets/images/mathcol.png
     - assets/gifs/field3.gif
+    - assets/sounds/background_music.mp3
+    - assets/images/read/A-a.png
+    - assets/images/read/A-avion.png
+    - assets/images/read/A-lapiz.png
+    - assets/images/read/abc.png
+    - assets/images/read/b-bebe.png
+    - assets/images/read/eleccion.png

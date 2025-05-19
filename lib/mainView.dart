@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:kids_apps2/Views/columns/math_columns.dart';
 import 'package:kids_apps2/Views/columns/read_columns.dart';
+import 'package:kids_apps2/ReadView.dart';
 import 'animations/animations.dart';
 
-class ActivitiesScreen extends StatelessWidget {
+class ActivitiesScreen extends StatefulWidget {
   const ActivitiesScreen({super.key});
+
+  @override
+  State<ActivitiesScreen> createState() => _ActivitiesScreenState();
+}
+
+class _ActivitiesScreenState extends State<ActivitiesScreen> {
+  final AudioPlayer _player = AudioPlayer();
+  bool _isPlaying = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _iniciarMusica();
+  }
+
+  Future<void> _iniciarMusica() async {
+    await _player.setReleaseMode(ReleaseMode.loop); // Repetir en bucle
+    await _player.play(AssetSource('sounds/background_music.mp3'));
+  }
+
+  Future<void> _toggleMusica() async {
+    if (_isPlaying) {
+      await _player.pause();
+    } else {
+      await _player.resume();
+    }
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
 
   Color _colorForLetter(String letter) {
     const colors = [
@@ -26,7 +64,7 @@ class ActivitiesScreen extends StatelessWidget {
       body: Stack(
         children: [
           // Fondo de pantalla
-         Container(
+          Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/gifs/field3.gif'),
@@ -50,10 +88,12 @@ class ActivitiesScreen extends StatelessWidget {
                         onPressed: () {},
                       ),
                       IconButton(
-                        icon: const Icon(Icons.music_note),
-                        color: Colors.yellow,
+                        icon: Icon(
+                          _isPlaying ? Icons.music_note : Icons.music_off,
+                          color: Colors.yellow,
+                        ),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: _toggleMusica,
                       ),
                     ],
                   ),
@@ -88,7 +128,7 @@ class ActivitiesScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF9C27B0), // Morado
+                        color: Color(0xFF9C27B0),
                         shadows: [
                           Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, -2)),
                           Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, -2)),
@@ -107,8 +147,21 @@ class ActivitiesScreen extends StatelessWidget {
                         Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: ReadDataMain.tiles.map((tile) {
-                              return BouncingCard(
+                            children: ReadDataMain.tiles.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final tile = entry.value;
+
+                              Widget card = BouncingCard(
+                                key: UniqueKey(), // <-- Esto fuerza la reconstrucción y reinicia la animación
+                                onTap: index == 0
+                                    ? () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const LettersScreen()),
+                                        );
+                                        setState(() {}); // <-- Esto fuerza la reconstrucción al volver
+                                      }
+                                    : null,
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(vertical: 10),
                                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
@@ -117,11 +170,7 @@ class ActivitiesScreen extends StatelessWidget {
                                     border: Border.all(color: Colors.black, width: 2),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
-                                      const BoxShadow(
-                                        color: Colors.orangeAccent,
-                                        spreadRadius: 2,
-                                        blurRadius: 0,
-                                      ),
+                                      const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
                                       BoxShadow(
                                         color: Colors.black26,
                                         blurRadius: 12,
@@ -140,7 +189,7 @@ class ActivitiesScreen extends StatelessWidget {
                                       Expanded(
                                         child: RichText(
                                           text: TextSpan(
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'ComicNeue',
@@ -148,9 +197,7 @@ class ActivitiesScreen extends StatelessWidget {
                                             children: (tile['text'] ?? 'ABC').split('').map((char) {
                                               return TextSpan(
                                                 text: char,
-                                                style: TextStyle(
-                                                  color: _colorForLetter(char),
-                                                ),
+                                                style: TextStyle(color: _colorForLetter(char)),
                                               );
                                             }).toList(),
                                           ),
@@ -160,6 +207,8 @@ class ActivitiesScreen extends StatelessWidget {
                                   ),
                                 ),
                               );
+
+                              return card;
                             }).toList(),
                           ),
                         ),
@@ -170,6 +219,7 @@ class ActivitiesScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: MathDataMain.tiles.map((tile) {
                               return BouncingCard(
+                                key: UniqueKey(), // <-- Esto fuerza la reconstrucción y reinicia la animación
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(vertical: 10),
                                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
@@ -178,11 +228,7 @@ class ActivitiesScreen extends StatelessWidget {
                                     border: Border.all(color: Colors.black, width: 2),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
-                                      const BoxShadow(
-                                        color: Colors.orangeAccent,
-                                        spreadRadius: 2,
-                                        blurRadius: 0,
-                                      ),
+                                      const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
                                       BoxShadow(
                                         color: Colors.black26,
                                         blurRadius: 12,
@@ -196,7 +242,7 @@ class ActivitiesScreen extends StatelessWidget {
                                         child: RichText(
                                           textAlign: TextAlign.right,
                                           text: TextSpan(
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'ComicNeue',
@@ -204,9 +250,7 @@ class ActivitiesScreen extends StatelessWidget {
                                             children: (tile['text'] ?? '123').split('').map((char) {
                                               return TextSpan(
                                                 text: char,
-                                                style: TextStyle(
-                                                  color: _colorForLetter(char),
-                                                ),
+                                                style: TextStyle(color: _colorForLetter(char)),
                                               );
                                             }).toList(),
                                           ),
