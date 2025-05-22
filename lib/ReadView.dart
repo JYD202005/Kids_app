@@ -6,12 +6,12 @@ class LettersScreen extends StatelessWidget {
 
   // Lista de imágenes para las tarjetas
   static const List<String> _images = [
-    'assets/images/read/A-a.png',
-    'assets/images/read/A-avion.png',
-    'assets/images/read/A-lapiz.png',
-    'assets/images/read/abc.png',
-    'assets/images/read/b-bebe.png',
-    'assets/images/read/eleccion.png',
+    'assets/images/read/A-a-r.png',
+    'assets/images/read/A_de_avion-r.png',
+    'assets/images/read/escribir_A-r.png',
+    'assets/images/read/globo-abc-r.png',
+    'assets/images/read/B_de_bebe-r.png',
+    'assets/images/read/Cuadros_letras-r.png',
   ];
 
   // Colores para las letras del título
@@ -43,17 +43,18 @@ class LettersScreen extends StatelessWidget {
               child: Column(
                 children: [
                   // Barra superior con solo botón de regreso
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        color: Colors.lightBlue,
-                        iconSize: 32,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          color: Colors.lightBlue,
+                          iconSize: 32,
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Text("🐵", style: TextStyle(fontSize: 24)),
+                      ],
+                    ),
                   const SizedBox(height: 16),
                   // Título central "ABCDE" colorido con flechas y emoji
                   Row(
@@ -75,7 +76,6 @@ class LettersScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       const Text("👇", style: TextStyle(fontSize: 24)),
                       const SizedBox(width: 8),
-                      const Text("🐵", style: TextStyle(fontSize: 24)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -111,7 +111,10 @@ class LettersScreen extends StatelessWidget {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(8),
-                                child: Image.asset(img, width: 70, height: 70),
+                                child: Transform.scale(
+                                  scale: 4.5, // Ajusta este valor para hacer la imagen más grande
+                                  child: Image.asset(img, width: 70, height: 70),
+                                ),
                               ),
                             ),
                           ),
