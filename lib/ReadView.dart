@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'animations/animations.dart';
+import 'acts/leters.dart'; // <-- Importa NumbersScreen
+import 'acts/memory.dart';     // <-- Importa MemoryScreen
 
 class LettersScreen extends StatelessWidget {
   const LettersScreen({super.key});
@@ -9,7 +11,7 @@ class LettersScreen extends StatelessWidget {
     'assets/images/read/A-a-r.png',
     'assets/images/read/A_de_avion-r.png',
     'assets/images/read/escribir_A-r.png',
-    'assets/images/read/globo-abc-r.png',
+    'assets/images/read/globo-abc-r.png', // Este es el que quieres detectar
     'assets/images/read/B_de_bebe-r.png',
     'assets/images/read/Cuadros_letras-r.png',
   ];
@@ -89,6 +91,19 @@ class LettersScreen extends StatelessWidget {
                       children: _images.map((img) {
                         return BouncingCard(
                           key: UniqueKey(),
+                          onTap: () {
+                            if (img == 'assets/images/read/globo-abc-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const NumbersScreen()),
+                              );
+                            } else if (img == 'assets/images/read/Cuadros_letras-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const MemoramaScreen()),
+                              );
+                            }
+                          },
                           child: Container(
                             margin: const EdgeInsets.all(4),
                             decoration: BoxDecoration(

@@ -23,7 +23,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   Future<void> _iniciarMusica() async {
-    await _player.setReleaseMode(ReleaseMode.loop); // Repetir en bucle
+    await _player.setReleaseMode(ReleaseMode.loop);
+    await _player.setVolume(0.3); // Música de fondo más baja
     await _player.play(AssetSource('sounds/background_music.mp3'));
   }
 
@@ -56,6 +57,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     ];
     final code = letter.codeUnitAt(0);
     return colors[code % colors.length];
+  }
+
+  Future<void> _playSeleccionar() async {
+    final player = AudioPlayer();
+    await player.setVolume(1.0); // 1.0 es el máximo volumen permitido
+    await player.play(AssetSource('sounds/seleccionar.mp3'));
+    await player.dispose();
   }
 
   @override
@@ -152,16 +160,17 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                               final tile = entry.value;
 
                               Widget card = BouncingCard(
-                                key: UniqueKey(), // <-- Esto fuerza la reconstrucción y reinicia la animación
-                                onTap: index == 0
-                                    ? () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const LettersScreen()),
-                                        );
-                                        setState(() {}); // <-- Esto fuerza la reconstrucción al volver
-                                      }
-                                    : null,
+                                key: UniqueKey(),
+                                onTap: () async {
+                                  await _playSeleccionar();
+                                  if (index == 0) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LettersScreen()),
+                                    );
+                                    setState(() {});
+                                  }
+                                },
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(vertical: 10),
                                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
@@ -219,7 +228,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: MathDataMain.tiles.map((tile) {
                               return BouncingCard(
-                                key: UniqueKey(), // <-- Esto fuerza la reconstrucción y reinicia la animación
+                                key: UniqueKey(),
+                                onTap: () async {
+                                  await _playSeleccionar();
+                                },
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(vertical: 10),
                                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),

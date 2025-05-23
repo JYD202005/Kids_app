@@ -22,6 +22,38 @@ flutter:
     - assets/images/mathcol.png
     - assets/gifs/field3.gif
     - assets/sounds/background_music.mp3
+    - assets/sounds/a.mp3
+    - assets/sounds/b.mp3
+    - assets/sounds/c.mp3
+    - assets/sounds/d.mp3
+    - assets/sounds/e.mp3
+    - assets/sounds/f.mp3
+    - assets/sounds/g.mp3
+    - assets/sounds/h.mp3
+    - assets/sounds/i.mp3
+    - assets/sounds/j.mp3
+    - assets/sounds/k.mp3
+    - assets/sounds/l.mp3
+    - assets/sounds/m.mp3
+    - assets/sounds/n.mp3
+    - assets/sounds/o.mp3
+    - assets/sounds/p.mp3
+    - assets/sounds/q.mp3
+    - assets/sounds/r.mp3
+    - assets/sounds/s.mp3
+    - assets/sounds/t.mp3
+    - assets/sounds/u.mp3
+    - assets/sounds/v.mp3
+    - assets/sounds/w.mp3
+    - assets/sounds/x.mp3
+    - assets/sounds/y.mp3
+    - assets/sounds/z.mp3
+    - assets/sounds/perder.mp3
+    - assets/sounds/ganador.mp3
+    - assets/sounds/bien.mp3
+    - assets/sounds/correcto.mp3
+    - assets/sounds/mono.mp3
+    - assets/sounds/seleccionar.mp3
     - assets/images/read/A-a-r.png
     - assets/images/read/A_de_avion-r.png
     - assets/images/read/escribir_A-r.png
