@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:kids_apps2/Views/columns/math_columns.dart';
 import 'package:kids_apps2/Views/columns/read_columns.dart';
 import 'package:kids_apps2/ReadView.dart';
+import 'package:kids_apps2/MathView.dart';
 import 'animations/animations.dart';
 
 class ActivitiesScreen extends StatefulWidget {
@@ -226,11 +227,21 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                         Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: MathDataMain.tiles.map((tile) {
+                            children: MathDataMain.tiles.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final tile = entry.value;
+
                               return BouncingCard(
                                 key: UniqueKey(),
                                 onTap: () async {
                                   await _playSeleccionar();
+                                  if (index == 0) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const MathView()),
+                                    );
+                                    setState(() {});
+                                  }
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(vertical: 10),

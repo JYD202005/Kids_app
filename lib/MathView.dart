@@ -1,0 +1,125 @@
+import 'package:flutter/material.dart';
+import 'animations/animations.dart';
+
+
+class MathView extends StatelessWidget {
+  const MathView({super.key});
+
+  // Lista de imágenes para las tarjetas (estructura simple)
+  static const List<String> _images = [
+    'assets/images/math/globo-uno-r.png',
+    'assets/images/math/0-100-r.png',
+    'assets/images/math/3_manzanas-r.png',
+    'assets/images/math/manos-num-r.png',
+    'assets/images/math/escribir_1-r.png',
+    'assets/images/math/7_dedos-r.png',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Fondo animado
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/gifs/field3.gif'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  // Barra superior con botón de regreso y emoji
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        color: Colors.lightBlue,
+                        iconSize: 32,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const Text("🧮", style: TextStyle(fontSize: 24)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Título central "1 = UNO" colorido con flechas
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text("👇", style: TextStyle(fontSize: 24)),
+                      SizedBox(width: 8),
+                      Text("1", style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+                      Text(" = ", style: TextStyle(fontSize: 28, color: Colors.black, fontWeight: FontWeight.bold)),
+                      Text("U", style: TextStyle(fontSize: 28, color: Colors.blue, fontWeight: FontWeight.bold)),
+                      Text("N", style: TextStyle(fontSize: 28, color: Colors.green, fontWeight: FontWeight.bold)),
+                      Text("O", style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 8),
+                      Text("👇", style: TextStyle(fontSize: 24)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Grid de tarjetas animadas
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.3,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      children: List.generate(_images.length, (index) {
+                        return BouncingCard(
+                          key: UniqueKey(),
+                          onTap: () {
+                            // Aquí puedes agregar navegación personalizada por índice si lo deseas
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFf2e9dc),
+                              border: Border.all(color: Colors.black, width: 2),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.orangeAccent,
+                                  spreadRadius: 2,
+                                  blurRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 12,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Transform.scale(
+                                  scale: 4.5, // Igual que en ReadView
+                                  child: Image.asset(
+                                    _images[index],
+                                    width: 70,
+                                    height: 70,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
