@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'animations/animations.dart';
-
+import 'package:audioplayers/audioplayers.dart';
 
 class MathView extends StatelessWidget {
   const MathView({super.key});
@@ -14,6 +14,13 @@ class MathView extends StatelessWidget {
     'assets/images/math/escribir_1-r.png',
     'assets/images/math/7_dedos-r.png',
   ];
+
+    // Método para reproducir el sonido de selección
+  Future<void> _playSeleccionar() async {
+    final player = AudioPlayer();
+    await player.play(AssetSource('sounds/seleccionar.mp3'));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +81,7 @@ class MathView extends StatelessWidget {
                       children: List.generate(_images.length, (index) {
                         return BouncingCard(
                           key: UniqueKey(),
-                          onTap: () {
+                          onTap: () async {
                             // Aquí puedes agregar navegación personalizada por índice si lo deseas
                           },
                           child: Container(

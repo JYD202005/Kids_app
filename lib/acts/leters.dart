@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../animations/animations.dart';
 
+class NumbersScreen extends StatefulWidget {
+  final AudioPlayer? backgroundPlayer; // Recibe el player de fondo si lo necesitas
 
-class NumbersScreen extends StatelessWidget {
-  const NumbersScreen({super.key});
+  const NumbersScreen({super.key, this.backgroundPlayer});
 
+  @override
+  State<NumbersScreen> createState() => _NumbersScreenState();
+}
+
+class _NumbersScreenState extends State<NumbersScreen> {
   // Colores de los botones, uno para cada letra
   static const List<Color> _buttonColors = [
     Color(0xFFFFB74D), // Naranja
@@ -50,12 +56,28 @@ class NumbersScreen extends StatelessWidget {
     Colors.green,
   ];
 
+  AudioPlayer? _currentPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Detener la música de fondo si se pasó el player
+    widget.backgroundPlayer?.stop();
+  }
+
+  @override
+  void dispose() {
+    _currentPlayer?.dispose();
+    super.dispose();
+  }
+
   Future<void> _playLetterSound(String letter) async {
-    final player = AudioPlayer();
+    // Detener cualquier sonido anterior
+    await _currentPlayer?.stop();
+    _currentPlayer = AudioPlayer();
     final lower = letter.toLowerCase();
-    await player.setVolume(1.0);
-    await player.play(AssetSource('sounds/$lower.mp3'));
-    await player.dispose();
+    await _currentPlayer!.setVolume(1.0);
+    await _currentPlayer!.play(AssetSource('sounds/$lower.mp3'));
   }
 
   @override
@@ -125,7 +147,6 @@ class NumbersScreen extends StatelessWidget {
                       ),
                       itemBuilder: (context, index) {
                         return BouncingCard(
-                          key: UniqueKey(),
                           onTap: () => _playLetterSound(_letters[index]),
                           child: Container(
                             decoration: BoxDecoration(
@@ -140,13 +161,31 @@ class NumbersScreen extends StatelessWidget {
                               ],
                             ),
                             child: Center(
-                              child: Text(
-                                _letters[index],
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Borde negro
+                                  Text(
+                                    _letters[index],
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = 3
+                                        ..color = Colors.black,
+                                    ),
+                                  ),
+                                  // Letra blanca encima
+                                  Text(
+                                    _letters[index],
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

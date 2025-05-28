@@ -15,6 +15,7 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen> {
   final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _fxPlayer = AudioPlayer(); // Añade esto a tu clase (no dentro de un método)
   bool _isPlaying = true;
 
   @override
@@ -43,6 +44,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   @override
   void dispose() {
     _player.dispose();
+    _fxPlayer.dispose(); // Asegúrate de liberar el recurso del reproductor de efectos
     super.dispose();
   }
 
@@ -61,10 +63,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   Future<void> _playSeleccionar() async {
-    final player = AudioPlayer();
-    await player.setVolume(1.0); // 1.0 es el máximo volumen permitido
-    await player.play(AssetSource('sounds/seleccionar.mp3'));
-    await player.dispose();
+    await _fxPlayer.stop();
+    await _fxPlayer.setVolume(1.0);
+    await _fxPlayer.play(AssetSource('sounds/seleccionar.mp3'));
   }
 
   @override
@@ -164,6 +165,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                                 key: UniqueKey(),
                                 onTap: () async {
                                   await _playSeleccionar();
+                                  // Espera un poco para que el sonido se escuche antes de navegar
+                                  await Future.delayed(const Duration(milliseconds: 250));
                                   if (index == 0) {
                                     await Navigator.push(
                                       context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../animations/animations.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MemoramaScreen extends StatefulWidget {
   const MemoramaScreen({super.key});
@@ -23,6 +24,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   int? _selectedIndex1;
   int? _selectedIndex2;
   bool _wait = false;
+  int _points = 0;
 
   static const List<Color> _titleColors = [
     Colors.red,
@@ -54,6 +56,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     Color(0xFFB2DFDB), // Turquesa
   ];
 
+  final AudioPlayer _player = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +78,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   void _onCardTap(int index) async {
     if (_wait || _cards[index].isFlipped || _cards[index].isMatched) return;
 
+    await _playClick(); // Sonido al tocar
+
     setState(() {
       _cards[index].isFlipped = true;
     });
@@ -89,11 +95,83 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
       final card1 = _cards[_selectedIndex1!];
       final card2 = _cards[_selectedIndex2!];
 
-      // Son pareja si tienen el mismo pairKey y uno es icono y el otro texto
       if (card1.pairKey == card2.pairKey && card1.isIcon != card2.isIcon) {
         card1.isMatched = true;
         card2.isMatched = true;
+        _points++;
+
+        await _playCorrect(); // Sonido de acierto
+
+        // Si ya no quedan cartas sin emparejar, muestra mensaje de victoria
+        if (_cards.every((c) => c.isMatched)) {
+          await Future.delayed(const Duration(milliseconds: 600));
+          await _playWin(); // <-- Sonido de victoria
+          CelebrationOverlay.show(context, win: true);
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              title: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text('¡Felicidades!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.amber)),
+                  SizedBox(height: 8),
+                  Text('🎉', style: TextStyle(fontSize: 48)),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 36),
+                      Icon(Icons.star, color: Colors.amber, size: 36),
+                      Icon(Icons.star, color: Colors.amber, size: 36),
+                    ],
+                  ),
+                ],
+              ),
+              content: Text(
+                '¡Completaste el memorama!\n\nPuntaje: $_points ⭐',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.deepPurple,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _points = 0;
+                      _generateCards();
+                    });
+                  },
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(Icons.exit_to_app),
+                  label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+            barrierDismissible: false,
+          );
+        }
       } else {
+        // --- SONIDO DE ERROR ---
+        await _playError();
         card1.isFlipped = false;
         card2.isFlipped = false;
       }
@@ -104,6 +182,26 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
 
       setState(() {});
     }
+  }
+
+  Future<void> _playClick() async {
+    await _player.stop();
+    await _player.play(AssetSource('sounds/click.mp3'));
+  }
+
+  Future<void> _playError() async {
+    await _player.stop();
+    await _player.play(AssetSource('sounds/error.mp3'));
+  }
+
+  Future<void> _playCorrect() async {
+    await _player.stop();
+    await _player.play(AssetSource('sounds/bien.mp3'));
+  }
+
+  Future<void> _playWin() async {
+    await _player.stop();
+    await _player.play(AssetSource('sounds/ganador.mp3'));
   }
 
   @override
@@ -154,7 +252,33 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+                  // Puntuación
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Puntos: $_points',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, -2)),
+                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, -2)),
+                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, 2)),
+                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, 2)),
+                              Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   // Grid del memorama
                   Expanded(
                     child: GridView.builder(
@@ -166,17 +290,13 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final card = _cards[index];
-                        // Asigna un color diferente a cada tarjeta usando el índice
                         final cardColor = _cardColors[index % _cardColors.length];
-                        return BouncingCard(
-                          key: UniqueKey(),
+                        return FlipCard(
+                          flipped: card.isFlipped || card.isMatched,
                           onTap: () => _onCardTap(index),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
+                          front: Container(
                             decoration: BoxDecoration(
-                              color: card.isFlipped || card.isMatched
-                                  ? cardColor
-                                  : Colors.deepPurpleAccent,
+                              color: cardColor,
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: const [
                                 BoxShadow(
@@ -186,25 +306,27 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                                 ),
                               ],
                             ),
-                            child: card.isFlipped || card.isMatched
-                                ? Center(
-                                    child: card.isIcon
-                                        ? Text(
-                                            card.content,
-                                            style: const TextStyle(fontSize: 40),
-                                          )
-                                        : Text(
-                                            card.content,
-                                            style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black, // Cambia aquí el color del texto
-                                            ),
-                                          ),
-                                  )
-                                : const Center(
-                                    child: Icon(Icons.help_outline, color: Colors.white, size: 32),
-                                  ),
+                            child: Center(
+                              child: card.isIcon
+                                  ? Text(card.content, style: const TextStyle(fontSize: 40, color: Colors.white))
+                                  : Text(card.content, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                            ),
+                          ),
+                          back: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.help_outline, color: Colors.white, size: 32),
+                            ),
                           ),
                         );
                       },

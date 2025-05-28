@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'animations/animations.dart';
 import 'acts/leters.dart'; // <-- Importa NumbersScreen
 import 'acts/memory.dart';     // <-- Importa MemoryScreen
+import 'acts/first_let.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class LettersScreen extends StatelessWidget {
   const LettersScreen({super.key});
+
+  // Método para reproducir el sonido de selección
+  Future<void> _playSeleccionar() async {
+    final player = AudioPlayer();
+    await player.play(AssetSource('sounds/seleccionar.mp3'));
+  }
 
   // Lista de imágenes para las tarjetas
   static const List<String> _images = [
@@ -24,6 +32,8 @@ class LettersScreen extends StatelessWidget {
     Colors.green,
     Colors.teal,
   ];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +100,9 @@ class LettersScreen extends StatelessWidget {
                       crossAxisSpacing: 12,
                       children: _images.map((img) {
                         return BouncingCard(
-                          key: UniqueKey(),
-                          onTap: () {
+                          key: ValueKey(img),
+                          onTap: () async {
+                            await _playSeleccionar(); // <-- Reproduce el sonido antes de navegar
                             if (img == 'assets/images/read/globo-abc-r.png') {
                               Navigator.push(
                                 context,
@@ -101,6 +112,11 @@ class LettersScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const MemoramaScreen()),
+                              );
+                            } else if (img == 'assets/images/read/A_de_avion-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const GuessTheLetterScreen()),
                               );
                             }
                           },
