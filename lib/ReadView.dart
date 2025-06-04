@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'animations/animations.dart';
-import 'acts/leters.dart'; // <-- Importa NumbersScreen
-import 'acts/memory.dart';     // <-- Importa MemoryScreen
-import 'acts/first_let.dart';
+import 'Read_acts/leters.dart'; // <-- Importa NumbersScreen
+import 'Read_acts/memory.dart';     // <-- Importa MemoryScreen
+import 'Read_acts/first_let.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class LettersScreen extends StatelessWidget {

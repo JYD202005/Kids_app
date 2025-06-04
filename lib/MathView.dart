@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Math_acts/sums.dart';
 import 'animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -78,11 +79,17 @@ class MathView extends StatelessWidget {
                       childAspectRatio: 1.3,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      children: List.generate(_images.length, (index) {
+                      children: _images.map((img) {
                         return BouncingCard(
-                          key: UniqueKey(),
+                          key: ValueKey(img),
                           onTap: () async {
-                            // Aquí puedes agregar navegación personalizada por índice si lo deseas
+                            await _playSeleccionar(); // <-- Reproduce el sonido antes de navegar
+                            if (img == 'assets/images/math/manos-num-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const GuessTheSumScreen()),
+                              );
+                            }
                           },
                           child: Container(
                             margin: const EdgeInsets.all(4),
@@ -107,18 +114,14 @@ class MathView extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: Transform.scale(
-                                  scale: 4.5, // Igual que en ReadView
-                                  child: Image.asset(
-                                    _images[index],
-                                    width: 70,
-                                    height: 70,
-                                  ),
+                                  scale: 4.5, // Ajusta este valor para hacer la imagen más grande
+                                  child: Image.asset(img, width: 70, height: 70),
                                 ),
                               ),
                             ),
                           ),
                         );
-                      }),
+                      }).toList(),
                     ),
                   ),
                 ],
