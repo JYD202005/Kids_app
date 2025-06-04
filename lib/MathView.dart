@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Math_acts/guess_the_num.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
 import 'animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -88,6 +89,12 @@ class MathView extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const GuessTheSumScreen()),
+                              );
+                            }
+                            if (img == 'assets/images/math/3_manzanas-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const CountObjectsScreen()),
                               );
                             }
                           },
