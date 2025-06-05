@@ -161,7 +161,7 @@ class CelebrationOverlay {
       builder: (context) {
         return Positioned.fill(
           child: IgnorePointer(
-            child: _AnimatedCelebration(win: win),
+            child: AnimatedCelebration(win: win),
           ),
         );
       },
@@ -173,29 +173,49 @@ class CelebrationOverlay {
   }
 }
 
-class _AnimatedCelebration extends StatefulWidget {
+class AnimatedCelebration extends StatefulWidget {
   final bool win;
-  const _AnimatedCelebration({super.key, required this.win});
+  const AnimatedCelebration({super.key, required this.win});
 
   @override
-  State<_AnimatedCelebration> createState() => _AnimatedCelebrationState();
+  State<AnimatedCelebration> createState() => _AnimatedCelebrationState();
 }
 
-class _AnimatedCelebrationState extends State<_AnimatedCelebration>
+class _AnimatedCelebrationState extends State<AnimatedCelebration>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scale;
   late Animation<double> _opacity;
+  late Animation<double> _rotation;
+  late Animation<Color?> _color;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
     )..forward();
-    _scale = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
-    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    
+    _scale = Tween<double>(begin: 0.5, end: 1.2).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    
+    _opacity = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInCubic),
+    );
+    
+    _rotation = Tween<double>(begin: -0.2, end: 0.2).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(0.1, 0.9, curve: Curves.easeInOutSine),
+      ),
+    );
+    
+    _color = ColorTween(
+      begin: widget.win ? Colors.amber.withOpacity(0.5) : Colors.red.withOpacity(0.5),
+      end: widget.win ? Colors.amber : Colors.red,
+    ).animate(_controller);
   }
 
   @override
@@ -206,32 +226,79 @@ class _AnimatedCelebrationState extends State<_AnimatedCelebration>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.win ? Colors.amber : Colors.redAccent;
-
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         return Opacity(
           opacity: _opacity.value,
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Transform.scale(
-                scale: _scale.value * 1.2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: List.generate(
-                    3,
-                    (i) => Icon(
-                      widget.win ? Icons.star : Icons.heart_broken,
-                      color: widget.win ? Colors.amber : Colors.red,
-                      size: 70, // Más grandes
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Efecto de destello/brillo de fondo
+                if (_controller.value < 0.8)
+                  Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.win 
+                          ? Colors.amber.withOpacity(0.1 * (1 - _controller.value))
+                          : Colors.red.withOpacity(0.05 * (1 - _controller.value)),
+                    ),
+                  ),
+                
+                Transform.scale(
+                  scale: _scale.value,
+                  child: Transform.rotate(
+                    angle: _rotation.value,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(
+                        3,
+                        (i) {
+                          // Animación escalonada para cada icono
+                          final delay = i * 0.15;
+                          final iconAnimation = Tween<double>(
+                            begin: 0,
+                            end: 1,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: _controller,
+                              curve: Interval(
+                                delay.clamp(0, 0.7),
+                                1.0,
+                                curve: Curves.elasticOut,
+                              ),
+                            ),
+                          );
+                          
+                          return ScaleTransition(
+                            scale: iconAnimation,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                widget.win ? Icons.star : Icons.heart_broken,
+                                color: _color.value,
+                                size: 70,
+                                shadows: [
+                                  Shadow(
+                                    color: widget.win 
+                                        ? Colors.amber.withOpacity(0.7)
+                                        : Colors.red.withOpacity(0.7),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 0),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         );

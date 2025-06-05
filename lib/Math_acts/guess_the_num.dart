@@ -11,10 +11,31 @@ class CountObjectsScreen extends StatefulWidget {
   State<CountObjectsScreen> createState() => _CountObjectsScreenState();
 }
 
+  class StarRow extends StatelessWidget {
+    final int stars;
+    const StarRow(this.stars, {super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(3, (index) {
+          return Icon(
+            index < stars ? Icons.star : Icons.star_border,
+            color: Colors.amber,
+            size: 32,
+          );
+        }),
+      );
+    }
+  }
+
+
 class _CountObjectsScreenState extends State<CountObjectsScreen> {
   final AudioPlayer _player = AudioPlayer();
   final Random _random = Random();
   late LifePointManager _lifeManager;
+  
   late List<int> _numbers; // lista de números del 1 al 10 en orden aleatorio
   int _currentIndex = 0;
   List<int> _options = [];
@@ -24,6 +45,7 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
     super.initState();
     _lifeManager = LifePointManager();
     _numbers = List.generate(10, (i) => i + 1)..shuffle(); // 1 al 10
+    int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _numbers.length);
     _generateOptions();
   }
 
@@ -72,28 +94,61 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
       _currentIndex = (_currentIndex + 1) % _numbers.length;
       _generateOptions();
     });
+
   }
 
-  void _showEndDialog({required bool won}) {
+
+
+
+ void _showEndDialog({required bool won}) {
+    final stars = StarSystem.calculateStars(
+      points: _lifeManager.points,
+      total: _numbers.length,
+    );
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          won ? '¡Muy bien!' : '¡Inténtalo de nuevo!',
-          style: TextStyle(
-              fontSize: 26, fontWeight: FontWeight.bold, color: won ? Colors.green : Colors.red),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              won ? '¡Felicidades!' : '¡Inténtalo de nuevo!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: won ? Colors.amber : Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(won ? '🎉' : '💔', style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 8),
+            StarRow(stars),
+          ],
         ),
         content: Text(
           won
-              ? '¡Identificaste correctamente todas las cantidades!\n\nPuntaje: ${_lifeManager.points}'
-              : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points}',
+              ? '¡Completaste todas las sumas!\n\nPuntaje: ${_lifeManager.points} ⭐'
+              : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.deepPurple,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -103,14 +158,19 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
                 _generateOptions();
               });
             },
-            child: const Text('Jugar otra vez', style: TextStyle(color: Colors.green)),
           ),
-          TextButton(
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.exit_to_app),
+            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Salir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

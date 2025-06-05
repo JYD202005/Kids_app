@@ -11,6 +11,25 @@ class GuessTheSumScreen extends StatefulWidget {
   State<GuessTheSumScreen> createState() => _GuessTheSumScreenState();
 }
 
+  class StarRow extends StatelessWidget {
+    final int stars;
+    const StarRow(this.stars, {super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(3, (index) {
+          return Icon(
+            index < stars ? Icons.star : Icons.star_border,
+            color: Colors.amber,
+            size: 32,
+          );
+        }),
+      );
+    }
+  }
+
 class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
   final AudioPlayer _player = AudioPlayer();
   final Random _random = Random();
@@ -24,6 +43,7 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
     super.initState();
     _lifeManager = LifePointManager();
     _items = _generateSumItems();
+    int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
     _generateOptions();
   }
 
@@ -78,46 +98,82 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
   }
 
   void _showEndDialog({required bool won}) {
+    final stars = StarSystem.calculateStars(
+      points: _lifeManager.points,
+      total: _items.length,
+    );
+
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          won ? '¡Bien hecho!' : '¡Intenta otra vez!',
-          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: won ? Colors.amber : Colors.red),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              won ? '¡Felicidades!' : '¡Inténtalo de nuevo!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: won ? Colors.amber : Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(won ? '🎉' : '💔', style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 8),
+            StarRow(stars),
+          ],
         ),
         content: Text(
           won
-              ? '¡Respondiste todas las sumas correctamente!\n\nPuntaje: ${_lifeManager.points} ⭐'
-              : '¡Te quedaste sin vidas!\n\nPuntaje: ${_lifeManager.points}',
+              ? '¡Completaste todas las sumas!\n\nPuntaje: ${_lifeManager.points} ⭐'
+              : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.deepPurple,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
                 _lifeManager.reset();
-                _items = _generateSumItems();
+                _items.shuffle();
                 _currentIndex = 0;
                 _generateOptions();
               });
             },
-            child: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
           ),
-          TextButton(
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.exit_to_app),
+            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
           ),
         ],
       ),
-      barrierDismissible: false,
     );
   }
+  
 
   @override
   Widget build(BuildContext context) {

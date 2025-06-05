@@ -12,12 +12,12 @@ class MemoramaScreen extends StatefulWidget {
 class _MemoramaScreenState extends State<MemoramaScreen> {
   // Pares de icono y texto
   final List<_Pair> _pairs = [
-    _Pair(icon: '🏠', label: 'casa'),
-    _Pair(icon: '🐶', label: 'perro'),
-    _Pair(icon: '🌟', label: 'estrella'),
-    _Pair(icon: '🍰', label: 'pastel'),
-    _Pair(icon: '❤️', label: 'amor'),
-    _Pair(icon: '☀️', label: 'sol'),
+    _Pair(icon: '🏠', label: 'Casa'),
+    _Pair(icon: '🐶', label: 'Perro'),
+    _Pair(icon: '🌟', label: 'Estrella'),
+    _Pair(icon: '🍰', label: 'Pastel'),
+    _Pair(icon: '❤️', label: 'Amor'),
+    _Pair(icon: '☀️', label: 'Sol'),
   ];
 
   late List<_CardModel> _cards;

@@ -10,6 +10,25 @@ class GuessTheLetterScreen extends StatefulWidget {
   State<GuessTheLetterScreen> createState() => _GuessTheLetterScreenState();
 }
 
+  class StarRow extends StatelessWidget {
+    final int stars;
+    const StarRow(this.stars, {super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(3, (index) {
+          return Icon(
+            index < stars ? Icons.star : Icons.star_border,
+            color: Colors.amber,
+            size: 32,
+          );
+        }),
+      );
+    }
+  }
+
 class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
   final AudioPlayer _player = AudioPlayer();
   int _currentIndex = 0;
@@ -20,9 +39,9 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
   @override
   void initState() {
     super.initState();
+    _lifeManager = LifePointManager();
     _items = _generateGameItems();
     _generateOptions();
-    _lifeManager = LifePointManager();
   }
 
   List<_GameItem> _generateGameItems() {
@@ -108,53 +127,70 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
       if (_lifeManager.points == _items.length) {
         await _playWin();
         CelebrationOverlay.show(context, win: true);
+        int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (_) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: Column(
+              mainAxisSize: MainAxisSize.min,
               children: const [
-                Text('¡Felicidades!', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.amber)),
+                Text(
+                  '¡Felicidades!',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.amber),
+                ),
                 SizedBox(height: 8),
-                Text('🏆', style: TextStyle(fontSize: 48)),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.star, color: Colors.amber, size: 32),
-                    Icon(Icons.star, color: Colors.amber, size: 32),
-                    Icon(Icons.star, color: Colors.amber, size: 32),
-                  ],
+                Text('🎉', style: TextStyle(fontSize: 48)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StarRow(stars),
+                const SizedBox(height: 16),
+                Text(
+                  '¡Respondiste todas las palabras correctamente!\n\nPuntaje: ${_lifeManager.points} ⭐',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            content: Text(
-              '¡Adivinaste todas las palabras!\n\nPuntaje: ${_lifeManager.points} ⭐',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, color: Colors.black87),
-            ),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
-              TextButton(
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Jugar otra vez', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
                     _lifeManager.reset();
+                    _items.shuffle();
                     _currentIndex = 0;
                     _generateOptions();
                   });
                 },
-                child: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
               ),
-              TextButton(
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: const Icon(Icons.exit_to_app),
+                label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Cierra el dialog
-                  Navigator.of(context).pop(); // Sale al ReadView
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
-                child: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
               ),
             ],
           ),
-          barrierDismissible: false,
         );
         return;
       }
@@ -165,53 +201,70 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
         // Perdiste
         await _playLose();
         CelebrationOverlay.show(context, win: false);
+        int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (_) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: Column(
+              mainAxisSize: MainAxisSize.min,
               children: const [
-                Text('¡Descalificado!', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.red)),
+                Text(
+                  '¡Inténtalo de nuevo!',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                ),
                 SizedBox(height: 8),
-                Text('😢', style: TextStyle(fontSize: 48)),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.heart_broken, color: Colors.red, size: 32),
-                    Icon(Icons.heart_broken, color: Colors.red, size: 32),
-                    Icon(Icons.heart_broken, color: Colors.red, size: 32),
-                  ],
+                Text('😔', style: TextStyle(fontSize: 48)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StarRow(stars),
+                const SizedBox(height: 16),
+                Text(
+                  'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            content: Text(
-              '¡Te quedaste sin vidas!\n\nPuntaje: ${_lifeManager.points}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, color: Colors.black87),
-            ),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
-              TextButton(
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Intentar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
                     _lifeManager.reset();
+                    _items.shuffle();
                     _currentIndex = 0;
                     _generateOptions();
                   });
                 },
-                child: const Text('Intentar de nuevo', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
               ),
-              TextButton(
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: const Icon(Icons.exit_to_app),
+                label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Cierra el dialog
-                  Navigator.of(context).pop(); // Sale al ReadView
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
-                child: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
               ),
             ],
           ),
-          barrierDismissible: false,
         );
         return;
       }
