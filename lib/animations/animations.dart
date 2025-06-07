@@ -4,13 +4,14 @@ class BouncingCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
 
-  const BouncingCard({Key? key, required this.child, this.onTap}) : super(key: key);
+  const BouncingCard({super.key, required this.child, this.onTap});
 
   @override
   _BouncingCardState createState() => _BouncingCardState();
 }
 
-class _BouncingCardState extends State<BouncingCard> with SingleTickerProviderStateMixin {
+class _BouncingCardState extends State<BouncingCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -21,7 +22,7 @@ class _BouncingCardState extends State<BouncingCard> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.96, end: 1.04)
         .chain(CurveTween(curve: Curves.easeInOut))
         .animate(_controller);
@@ -38,13 +39,15 @@ class _BouncingCardState extends State<BouncingCard> with SingleTickerProviderSt
   void _animateOnTap() async {
     // Detener la animación de rebote
     _controller.stop();
-    
+
     // Animación al hacer tap
-    await _controller.animateTo(0.0, duration: const Duration(milliseconds: 80), curve: Curves.easeOut);
-    await _controller.animateTo(1.0, duration: const Duration(milliseconds: 120), curve: Curves.elasticOut);
-    
+    await _controller.animateTo(0.0,
+        duration: const Duration(milliseconds: 80), curve: Curves.easeOut);
+    await _controller.animateTo(1.0,
+        duration: const Duration(milliseconds: 120), curve: Curves.elasticOut);
+
     if (widget.onTap != null) widget.onTap!();
-    
+
     // Volver a la animación de rebote después de un pequeño retraso
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _startBouncingAnimation();
@@ -89,7 +92,8 @@ class FlipCard extends StatefulWidget {
   State<FlipCard> createState() => _FlipCardState();
 }
 
-class _FlipCardState extends State<FlipCard> with SingleTickerProviderStateMixin {
+class _FlipCardState extends State<FlipCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -175,7 +179,7 @@ class CelebrationOverlay {
 
 class _AnimatedCelebration extends StatefulWidget {
   final bool win;
-  const _AnimatedCelebration({super.key, required this.win});
+  const _AnimatedCelebration({required this.win});
 
   @override
   State<_AnimatedCelebration> createState() => _AnimatedCelebrationState();

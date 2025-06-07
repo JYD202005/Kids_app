@@ -68,8 +68,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     // Por cada par, crea una tarjeta de icono y una de texto
     final List<_CardModel> cards = [];
     for (final pair in _pairs) {
-      cards.add(_CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
-      cards.add(_CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
+      cards.add(
+          _CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
+      cards.add(
+          _CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
     }
     cards.shuffle();
     _cards = cards;
@@ -110,11 +112,16 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
               title: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Text('¡Felicidades!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.amber)),
+                  Text('¡Felicidades!',
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber)),
                   SizedBox(height: 8),
                   Text('🎉', style: TextStyle(fontSize: 48)),
                   SizedBox(height: 8),
@@ -131,7 +138,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
               content: Text(
                 '¡Completaste el memorama!\n\nPuntaje: $_points ⭐',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 22,
+                    color: Colors.deepPurple,
+                    fontWeight: FontWeight.bold),
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: [
@@ -139,10 +149,12 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
                     foregroundColor: Colors.deepPurple,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text('Jugar de nuevo',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   onPressed: () {
                     Navigator.of(context).pop();
                     setState(() {
@@ -155,10 +167,12 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                   icon: const Icon(Icons.exit_to_app),
-                  label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text('Salir',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   onPressed: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
@@ -268,11 +282,26 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                             fontWeight: FontWeight.bold,
                             color: Colors.deepPurple,
                             shadows: [
-                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, -2)),
-                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, -2)),
-                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, 2)),
-                              Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, 2)),
-                              Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
                             ],
                           ),
                         ),
@@ -283,14 +312,16 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                   Expanded(
                     child: GridView.builder(
                       itemCount: _cards.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                       ),
                       itemBuilder: (context, index) {
                         final card = _cards[index];
-                        final cardColor = _cardColors[index % _cardColors.length];
+                        final cardColor =
+                            _cardColors[index % _cardColors.length];
                         return FlipCard(
                           flipped: card.isFlipped || card.isMatched,
                           onTap: () => _onCardTap(index),
@@ -308,8 +339,14 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                             ),
                             child: Center(
                               child: card.isIcon
-                                  ? Text(card.content, style: const TextStyle(fontSize: 40, color: Colors.white))
-                                  : Text(card.content, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  ? Text(card.content,
+                                      style: const TextStyle(
+                                          fontSize: 40, color: Colors.white))
+                                  : Text(card.content,
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
                             ),
                           ),
                           back: Container(
@@ -325,7 +362,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                               ],
                             ),
                             child: const Center(
-                              child: Icon(Icons.help_outline, color: Colors.white, size: 32),
+                              child: Icon(Icons.help_outline,
+                                  color: Colors.white, size: 32),
                             ),
                           ),
                         );
@@ -361,7 +399,7 @@ class _CardModel {
     required this.content,
     required this.isIcon,
     required this.pairKey,
-    this.isFlipped = false,
-    this.isMatched = false,
+    this.isFlipped = false, // Valor por defecto: no volteada
+    this.isMatched = false, // Valor por defecto: no emparejada
   });
 }
