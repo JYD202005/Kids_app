@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CodigoLocalService {
-  static const String _clave = 'codigo_verificacion';
-  static const String _nombre = 'nombre_verificacion';
+  static const String _clave = '';
+  static const String _nombre = '';
 
   /// Guarda el código
   Future<void> guardarCodigo(String codigo) async {
