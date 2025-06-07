@@ -34,6 +34,7 @@ class _LoginregistroState extends State<Loginregistro> {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -41,10 +42,9 @@ class _LoginregistroState extends State<Loginregistro> {
         title: const Text(
           'Registro del Niño',
           style: TextStyle(
-            color: Colors.white70,
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold
-          ),
+              color: Colors.white70,
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold),
         ),
       ),
       body: Stack(
@@ -174,7 +174,6 @@ class _LoginregistroState extends State<Loginregistro> {
 
   // Separar lógica de los botones para que sea más limpio
 
-
   void _handleRegistro() async {
     if (_isLoading || _esperandoVerificacion || unico) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -282,8 +281,9 @@ class _LoginregistroState extends State<Loginregistro> {
         password: password,
       );
 
-      if (authResponse.user == null)
+      if (authResponse.user == null) {
         throw Exception('No se pudo crear el usuario');
+      }
 
       final uid = authResponse.user!.id;
 

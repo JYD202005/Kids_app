@@ -46,7 +46,11 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
       case 8:
         return ['🖐️', '✌️', '☝️'];
       case 9:
-        return ['🖐️', '✌️', '✌️',];
+        return [
+          '🖐️',
+          '✌️',
+          '✌️',
+        ];
       case 10:
         return ['🖐️', '🖐️'];
       default:
@@ -58,7 +62,7 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
     final correct = _numbers[_currentIndex];
     final other1 = (correct + _random.nextInt(3) + 1).clamp(1, 10);
     final other2 = (correct - (_random.nextInt(3) + 1)).clamp(1, 10);
-    _options = [correct, other1, other2].toSet().toList();
+    _options = {correct, other1, other2}.toList();
     _options.shuffle();
   }
 
@@ -125,7 +129,7 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
         content: Text(
           won
               ? '¡Completaste todos los números! Puntaje: ${_lifeManager.points} ⭐'
-              : 'Te quedaste sin vidas. \ Puntaje: ${_lifeManager.points} ⭐',
+              : 'Te quedaste sin vidas.  Puntaje: ${_lifeManager.points} ⭐',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 22,
@@ -139,10 +143,12 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -157,10 +163,12 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -203,12 +211,19 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red)),
-                    ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red)),
+                    ...List.generate(_lifeManager.lives,
+                        (i) => const Icon(Icons.favorite, color: Colors.red)),
+                    ...List.generate(
+                        3 - _lifeManager.lives,
+                        (i) => const Icon(Icons.favorite_border,
+                            color: Colors.red)),
                     const SizedBox(width: 24),
                     Text(
                       'Puntos: ${_lifeManager.points}',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ],
                 ),
@@ -217,13 +232,15 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
               // Muestra los emojis de manos
               Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: BouncingCard(
                     child: Text(
                       emojiList.join(' + '),
-                      style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 64, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -237,9 +254,12 @@ class _GuessTheHandsScreenState extends State<GuessTheHandsScreen> {
                   return ElevatedButton(
                     onPressed: () => _onOptionTap(value),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.primaries[value % Colors.primaries.length],
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor:
+                          Colors.primaries[value % Colors.primaries.length],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     child: Text(
                       '$value',
@@ -274,4 +294,3 @@ class StarRow extends StatelessWidget {
     );
   }
 }
-

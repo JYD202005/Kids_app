@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kids_apps2/Logins/Principal.dart';
-import 'package:kids_apps2/Logins/loginRegistro.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:kids_apps2/mainView.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:math'; // Para usar min/max en cálculos
+
+import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'dart:math';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
