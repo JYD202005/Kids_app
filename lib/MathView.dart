@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
 import 'package:kids_apps2/Math_acts/guess_the_num.dart';
+import 'package:kids_apps2/Math_acts/scrible_the_number.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
 import 'animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -95,6 +97,18 @@ class MathView extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const CountObjectsScreen()),
+                              );
+                            }
+                            if (img == 'assets/images/math/7_dedos-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const GuessTheHandsScreen()),
+                              );
+                            }
+                            if (img == 'assets/images/math/escribir_1-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const NumberWordGame()),
                               );
                             }
                           },
