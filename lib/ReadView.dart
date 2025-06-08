@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Read_acts/match_emoji_with_letter.dart';
+import 'package:kids_apps2/Read_acts/writte_letter.dart';
 import 'animations/animations.dart';
 import 'Read_acts/leters.dart'; // <-- Importa NumbersScreen
 import 'Read_acts/memory.dart';     // <-- Importa MemoryScreen
 import 'Read_acts/first_let.dart';
+import 'Read_acts/scrible_the_thing.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class LettersScreen extends StatelessWidget {
@@ -118,7 +121,22 @@ class LettersScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(builder: (context) => const GuessTheLetterScreen()),
                               );
-                            }
+                            }else if (img == 'assets/images/read/escribir_A-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ThingWordGame()),
+                              );
+                            }else if (img == 'assets/images/read/B_de_bebe-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const EmojiByLetterGame()),
+                              );
+                            }else if (img == 'assets/images/read/A-a-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LetterTracingGame()),
+                              );
+                            }                          
                           },
                           child: Container(
                             margin: const EdgeInsets.all(4),

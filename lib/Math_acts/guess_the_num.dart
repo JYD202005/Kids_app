@@ -211,7 +211,7 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
                     ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red)),
                     const SizedBox(width: 20),
                     Text('Puntos: ${_lifeManager.points}',
-                        style: const TextStyle(fontSize: 20, color: Colors.white)),
+                        style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
