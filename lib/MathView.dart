@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
 import 'package:kids_apps2/Math_acts/guess_the_num.dart';
+import 'package:kids_apps2/Math_acts/numbers.dart';
 import 'package:kids_apps2/Math_acts/scrible_the_number.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
 import 'animations/animations.dart';
@@ -19,12 +20,11 @@ class MathView extends StatelessWidget {
     'assets/images/math/7_dedos-r.png',
   ];
 
-    // Método para reproducir el sonido de selección
+  // Método para reproducir el sonido de selección
   Future<void> _playSeleccionar() async {
     final player = AudioPlayer();
     await player.play(AssetSource('sounds/seleccionar.mp3'));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -65,11 +65,31 @@ class MathView extends StatelessWidget {
                     children: const [
                       Text("👇", style: TextStyle(fontSize: 24)),
                       SizedBox(width: 8),
-                      Text("1", style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
-                      Text(" = ", style: TextStyle(fontSize: 28, color: Colors.black, fontWeight: FontWeight.bold)),
-                      Text("U", style: TextStyle(fontSize: 28, color: Colors.blue, fontWeight: FontWeight.bold)),
-                      Text("N", style: TextStyle(fontSize: 28, color: Colors.green, fontWeight: FontWeight.bold)),
-                      Text("O", style: TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold)),
+                      Text("1",
+                          style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold)),
+                      Text(" = ",
+                          style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
+                      Text("U",
+                          style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold)),
+                      Text("N",
+                          style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold)),
+                      Text("O",
+                          style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold)),
                       SizedBox(width: 8),
                       Text("👇", style: TextStyle(fontSize: 24)),
                     ],
@@ -90,25 +110,41 @@ class MathView extends StatelessWidget {
                             if (img == 'assets/images/math/manos-num-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const GuessTheSumScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GuessTheSumScreen()),
                               );
                             }
                             if (img == 'assets/images/math/3_manzanas-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const CountObjectsScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CountObjectsScreen()),
                               );
                             }
                             if (img == 'assets/images/math/7_dedos-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const GuessTheHandsScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const GuessTheHandsScreen()),
                               );
                             }
                             if (img == 'assets/images/math/escribir_1-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const NumberWordGame()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NumberWordGame()),
+                              );
+                            }
+                            if (img == 'assets/images/math/globo-uno-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NumbersScreen()),
                               );
                             }
                           },
@@ -135,8 +171,10 @@ class MathView extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: Transform.scale(
-                                  scale: 4.5, // Ajusta este valor para hacer la imagen más grande
-                                  child: Image.asset(img, width: 70, height: 70),
+                                  scale:
+                                      4.5, // Ajusta este valor para hacer la imagen más grande
+                                  child:
+                                      Image.asset(img, width: 70, height: 70),
                                 ),
                               ),
                             ),

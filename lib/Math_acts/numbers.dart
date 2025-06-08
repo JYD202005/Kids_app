@@ -114,8 +114,7 @@ class _NumbersScreenState extends State<NumbersScreen> {
     await _currentPlayer!.setVolume(1.0);
 
     // El archivo de sonido debe estar en assets/sounds/number_1.mp3, number_2.mp3, etc.
-    await _currentPlayer!
-        .play(AssetSource('sounds_numbers/number_$number.mp3'));
+    await _currentPlayer!.play(AssetSource('sounds_numbers/$number.mp3'));
   }
 
   @override

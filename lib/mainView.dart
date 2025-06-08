@@ -50,9 +50,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   }
 
   Future<void> _playSeleccionar() async {
-    await _fxPlayer.stop();
-    await _fxPlayer.setVolume(1.0);
-    await _fxPlayer.play(AssetSource('sounds/seleccionar.mp3'));
+    try {
+      await _fxPlayer.stop();
+      await _fxPlayer.setVolume(1.0);
+      await _fxPlayer.play(AssetSource('sounds/seleccionar.mp3'));
+    } catch (e) {
+      print('yo tambien fallo :D__$e');
+    }
   }
 
   @override
