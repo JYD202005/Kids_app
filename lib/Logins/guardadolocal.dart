@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CodigoLocalService {
-  static const String _clave = '';
-  static const String _nombre = '';
+  static const String _clave = 'c';
+  static const String _nombre = 'n';
 
   /// Guarda el código
   Future<void> guardarCodigo(String codigo) async {
@@ -26,21 +26,21 @@ class CodigoLocalService {
 
   /// Guarda el código
   Future<void> guardarnNombre(String nombre) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_nombre, nombre);
-    print('Código guardado localmente: $nombre');
+    final prefs2 = await SharedPreferences.getInstance();
+    await prefs2.setString(_nombre, nombre);
+    print('Nombre guardado localmente: $nombre');
   }
 
   /// Obtiene el código
   Future<String?> obtenerNombre() async {
-    final prefs = await SharedPreferences.getInstance();
-    print('Código obtenido localmente: $_nombre');
-    return prefs.getString(_nombre);
+    final prefs2 = await SharedPreferences.getInstance();
+    print('Nombre obtenido localmente: $_nombre');
+    return prefs2.getString(_nombre);
   }
 
   /// Borra el código
   Future<void> borrarNombre() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_nombre);
+    final prefs2 = await SharedPreferences.getInstance();
+    await prefs2.remove(_nombre);
   }
 }

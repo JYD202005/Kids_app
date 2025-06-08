@@ -23,10 +23,14 @@ class _InicioState extends State<Inicio> {
   @override
   void initState() {
     super.initState();
-    main();
+    initstateawait();
   }
 
-  void main() async {
+  void initstateawait() async {
+    await main();
+  }
+
+  Future<void> main() async {
     String mini = await storage.obtenerNombre() ?? '';
     setState(() {
       _miniUser = mini;
@@ -136,8 +140,8 @@ class _InicioState extends State<Inicio> {
                     height: 60,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        String UID = await storage.obtenerCodigo() ?? '';
-                        String NOMBRE = await storage.obtenerNombre() ?? '';
+                        String UID = await storage.obtenerCodigo() ?? 'c';
+                        String NOMBRE = await storage.obtenerNombre() ?? 'n';
                         if (!UID.isEmpty && !NOMBRE.isEmpty) {
                           inicio();
                         } else {
@@ -146,6 +150,7 @@ class _InicioState extends State<Inicio> {
                                 content: Text(
                                     'No se encontró el usuario en el dispositivo')),
                           );
+                          if (!mounted) return;
                           setState(() {
                             _isLogin = false;
                           });
@@ -167,36 +172,19 @@ class _InicioState extends State<Inicio> {
                   ),
                   const SizedBox(height: 30),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => Loginregistro()),
-                      );
+                      ).then((_) async {
+                        await main();
+                      });
                     },
                     child: Text(
                       '¿No tienes una cuenta? ¡Regístrate ahora!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.yellow[600],
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ActivitiesScreen()),
-                      );
-                    },
-                    child: Text(
-                      'SALTAR LOGIN',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red[600],
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
@@ -334,7 +322,18 @@ class _InicioState extends State<Inicio> {
     });
     String UID = await storage.obtenerCodigo() ?? '';
     String NOMBRE = await storage.obtenerNombre() ?? '';
-    if (UID.isEmpty) {
+    if (UID.isEmpty || NOMBRE.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('No se encontró el usuario en el dispositivo')),
+      );
+      if (!mounted) return;
+      setState(() {
+        _isLogin = false;
+      });
+      return;
+    }
+    if (UID == 'c' || NOMBRE == 'n') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('No se encontró el usuario en el dispositivo')),
@@ -344,12 +343,14 @@ class _InicioState extends State<Inicio> {
     final response = await supabase
         .from('Users') // tu tabla, ajusta el nombre si es diferente
         .select('UID,miniUser') // columnas que quieres obtener
-        .eq('UID', UID) // filtro por email
+        .eq('UID', UID)
+        .eq('miniUser', NOMBRE) // filtro por email
         .limit(1)
         .maybeSingle();
 
     if (response != null) {
       final uid = response['UID'];
+      if (!mounted) return;
       setState(() {
         _miniUser = response['miniUser'];
       });

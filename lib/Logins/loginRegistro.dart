@@ -35,6 +35,14 @@ class _LoginregistroState extends State<Loginregistro> {
   }
 
   @override
+  void dispose() {
+    _timerCodigo?.cancel();
+    _timerProgreso?.cancel();
+    _LoginregistroState();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -183,6 +191,7 @@ class _LoginregistroState extends State<Loginregistro> {
       );
       return;
     }
+    if (!mounted) return;
     await registrarUsuario(
       email: _email.text.trim(),
       password: passwordRecuperacion.text.trim(),
@@ -192,13 +201,16 @@ class _LoginregistroState extends State<Loginregistro> {
   }
 
   void _handleVerificacion() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     final exitoso = await verificacion();
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _esperandoVerificacion = !exitoso;
     });
     if (exitoso) {
+      if (!mounted) return;
       await completarRegistro(
         email: _email.text.trim(),
         password: passwordRecuperacion.text.trim(),
@@ -222,7 +234,6 @@ class _LoginregistroState extends State<Loginregistro> {
     required String nombrePadre,
   }) async {
     if (!mounted) return;
-
     // Validar restricciones
     if (!Restricciones(
       nombreDelUsuario: nombreDelUsuario,
@@ -230,9 +241,11 @@ class _LoginregistroState extends State<Loginregistro> {
       email: _email,
       passwordRecuperacion: passwordRecuperacion,
     )) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       return;
     }
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _esperandoVerificacion = false;
@@ -259,6 +272,7 @@ class _LoginregistroState extends State<Loginregistro> {
     }
 
     // Cambiar a estado de espera de verificación
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _esperandoVerificacion = true;
@@ -272,7 +286,6 @@ class _LoginregistroState extends State<Loginregistro> {
     required String nombrePadre,
   }) async {
     if (!mounted) return;
-
     setState(() => _isLoading = true);
 
     try {
@@ -286,7 +299,7 @@ class _LoginregistroState extends State<Loginregistro> {
       }
 
       final uid = authResponse.user!.id;
-
+      if (!mounted) return;
       await supabase.from('Users').insert({
         'UID': uid,
         'miniUser': nombreNino,
@@ -304,6 +317,7 @@ class _LoginregistroState extends State<Loginregistro> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario registrado correctamente')),
       );
+      if (!mounted) return;
       detenerTimers();
       clearFields();
     } on AuthException catch (e) {
@@ -391,6 +405,7 @@ class _LoginregistroState extends State<Loginregistro> {
     _email.clear();
     passwordRecuperacion.clear();
     codigoVerificacion.clear();
+    if (!mounted) return;
     setState(() {
       _codigoVerificacion = '';
       _isLoading = false; // Reiniciar el estado de carga
@@ -410,12 +425,14 @@ class _LoginregistroState extends State<Loginregistro> {
   }) async {
     try {
       final random = Random();
+      if (!mounted) return false;
       setState(() {
         _codigoVerificacion = (100000 + random.nextInt(900000)).toString();
       });
       print('Código de verificación generado: $_codigoVerificacion');
 
       final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+      if (!mounted) return false;
       final response = await http.post(
         url,
         headers: {
@@ -464,11 +481,11 @@ class _LoginregistroState extends State<Loginregistro> {
     int segundosCodigo = 900;
 
     if (!mounted) return;
-
     _timerProgreso = Timer.periodic(const Duration(seconds: 1), (timer) {
       print("Faltan $segundosRestantes segundos");
 
       segundosRestantes--;
+      if (!mounted) return;
       setState(() {
         _segundosRestantes = segundosRestantes;
       });
@@ -476,6 +493,7 @@ class _LoginregistroState extends State<Loginregistro> {
       if (segundosRestantes < 0) {
         timer.cancel();
         print("¡Timer terminado!");
+        if (!mounted) return;
         setState(() {
           unico = false;
         });
@@ -507,6 +525,7 @@ class _LoginregistroState extends State<Loginregistro> {
       _timerCodigo!.cancel();
       print("Timer de código detenido manualmente");
     }
+    if (!mounted) return;
     setState(() {
       unico = false; // Reiniciar el estado de único
     });
