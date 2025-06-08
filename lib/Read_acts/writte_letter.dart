@@ -9,11 +9,12 @@ import 'dart:ui'; // para usar Offset
 
 
 final Map<String, List<Offset>> letterKeyPoints = {
-  'A': [Offset(150, 110), Offset(110, 230), Offset(210, 230), Offset(150, 190)],
-  'B': [Offset(110, 90), Offset(115, 160), Offset(110, 260), Offset(180, 110), Offset(180, 160), Offset(180, 220)],
-  'C': [Offset(180, 60), Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 260)],
-  'D': [Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 60), Offset(180, 260)],
-  'E': [Offset(180, 60), Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 260), Offset(140, 160)],
+  // Ejemplo para la letra A (ajusta estos valores para cada letra)
+  'A': [Offset(0.5, 0.15), Offset(0.25, 0.85), Offset(0.75, 0.85), Offset(0.5, 0.55)],
+  'B': [Offset(0.25, 0.15), Offset(0.75, 0.15), Offset(0.25, 0.55), Offset(0.75, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85)],
+  'C': [Offset(0.75, 0.15), Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85)],
+  'D': [Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.15), Offset(0.75, 0.85)],
+  'E': [Offset(0.75, 0.15), Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85), Offset(0.5, 0.55)],
 };
 
 
@@ -195,6 +196,32 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
     final currentLetter = _letters[_currentIndex];
     final keyPoints = letterKeyPoints[currentLetter] ?? [];
 
+    // Tamaño del canvas y fuente
+    final double canvasSize = 320;
+    final double fontSize = 200;
+
+    // Usa TextPainter para calcular el tamaño real de la letra
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: currentLetter,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade300,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final letterWidth = textPainter.width;
+    final letterHeight = textPainter.height;
+
+    // Centra la letra en el canvas
+    final letterOffset = Offset(
+      (canvasSize - letterWidth) / 2,
+      (canvasSize - letterHeight) / 2,
+    );
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -247,8 +274,8 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                 alignment: Alignment.center,
                 children: [
                   Container(
-                    width: 320,
-                    height: 320,
+                    width: canvasSize,
+                    height: canvasSize,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -258,7 +285,7 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                       child: Text(
                         currentLetter,
                         style: TextStyle(
-                          fontSize: 200,
+                          fontSize: fontSize,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade300,
                         ),
@@ -266,26 +293,33 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                     ),
                   ),
                   Container(
-                    width: 320,
-                    height: 320,
+                    width: canvasSize,
+                    height: canvasSize,
                     child: Signature(
                       controller: _controller,
                       backgroundColor: Colors.transparent,
                     ),
                   ),
                   // Visualización de puntos clave
-                  ...keyPoints.map((point) => Positioned(
-                        left: point.dx,
-                        top: point.dy,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
+                  ...keyPoints.map((point) {
+                    // point.dx y point.dy son relativos (0..1)
+                    final absolute = Offset(
+                      letterOffset.dx + point.dx * letterWidth - 5, // -5 para centrar el círculo
+                      letterOffset.dy + point.dy * letterHeight - 5,
+                    );
+                    return Positioned(
+                      left: absolute.dx,
+                      top: absolute.dy,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
                         ),
-                      )),
+                      ),
+                    );
+                  }),
                 ],
               ),
               const SizedBox(height: 16),

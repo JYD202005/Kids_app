@@ -29,7 +29,7 @@ class _ThingWordGameState extends State<ThingWordGame> {
   List<String> _letterPool = [];
   List<String?> _currentAnswer = [];
   List<bool> _usedLetters = [];
-  late LifePointManager _lifeManager;
+  late LifePointManager _lifeManager; // Usa el sistema de vidas y puntos
 
   @override
   void initState() {
@@ -110,11 +110,11 @@ class _ThingWordGameState extends State<ThingWordGame> {
 
     if (userAnswer == word) {
       await _player.play(AssetSource('sounds/correcto.mp3'));
-      _lifeManager.addPoint();
+      _lifeManager.addPoint(); // Suma punto
       _nextRoundOrWin();
     } else {
       await _player.play(AssetSource('sounds/error.mp3'));
-      _lifeManager.loseLife();
+      _lifeManager.loseLife(); // Pierde vida
       if (_lifeManager.isGameOver) {
         await _player.play(AssetSource('sounds/perder.mp3'));
         if (!mounted) return;
@@ -236,6 +236,7 @@ class _ThingWordGameState extends State<ThingWordGame> {
           child: Column(
             children: [
               const SizedBox(height: 16),
+              // Barra superior
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -245,16 +246,85 @@ class _ThingWordGameState extends State<ThingWordGame> {
                     iconSize: 32,
                     onPressed: () => Navigator.pop(context),
                   ),
-                  Row(
-                    children: List.generate(
-                      3,
-                      (i) => Icon(
-                        i < _lifeManager.lives ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.red,
-                      ),
+                  const Text("✏️", style: TextStyle(fontSize: 24)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Título colorido
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ESCRIBE',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple[400],
+                      letterSpacing: 2,
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              // Barra de vidas y puntos centrada y bonita
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
+                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        const SizedBox(width: 18),
+                        const Icon(Icons.star, color: Colors.amber, size: 28),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Puntos: ${_lifeManager.points}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
               Text(

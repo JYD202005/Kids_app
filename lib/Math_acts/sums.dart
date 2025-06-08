@@ -203,17 +203,61 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red)),
-                    ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red)),
-                    const SizedBox(width: 24),
-                    Text(
-                      'Puntos: ${_lifeManager.points}',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
+                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        const SizedBox(width: 18),
+                        const Icon(Icons.star, color: Colors.amber, size: 28),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Puntos: ${_lifeManager.points}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

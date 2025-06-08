@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
+import '../logic/life_point.dart'; // Agrega este import
 //Puntos Locales no de la clase
 class MemoramaScreen extends StatefulWidget {
   const MemoramaScreen({super.key});
@@ -25,6 +26,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   int? _selectedIndex2;
   bool _wait = false;
   int _points = 0;
+
+  late LifePointManager _lifeManager; // Nueva instancia
+
+  bool _showingPairs = true; // NUEVO: indica si se están mostrando los pares
 
   static const List<Color> _titleColors = [
     Colors.red,
@@ -61,27 +66,42 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   @override
   void initState() {
     super.initState();
-    
+    _lifeManager = LifePointManager();
     _generateCards();
   }
 
-  void _generateCards() {
-    // Por cada par, crea una tarjeta de icono y una de texto
+  void _generateCards() async {
     final List<_CardModel> cards = [];
     for (final pair in _pairs) {
-      cards.add(
-          _CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
-      cards.add(
-          _CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
+      cards.add(_CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
+      cards.add(_CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
     }
     cards.shuffle();
     _cards = cards;
+    _lifeManager.reset();
+
+    // Mostrar todos los pares boca arriba al inicio
+    setState(() {
+      for (var card in _cards) {
+        card.isFlipped = true;
+      }
+      _showingPairs = true;
+    });
+
+    // Espera 2 segundos y voltea todas las cartas
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      for (var card in _cards) {
+        card.isFlipped = false;
+      }
+      _showingPairs = false;
+    });
   }
 
   void _onCardTap(int index) async {
-    if (_wait || _cards[index].isFlipped || _cards[index].isMatched) return;
+    if (_wait || _cards[index].isFlipped || _cards[index].isMatched || _showingPairs) return;
 
-    await _playClick(); // Sonido al tocar
+    await _playClick();
 
     setState(() {
       _cards[index].isFlipped = true;
@@ -101,94 +121,28 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
       if (card1.pairKey == card2.pairKey && card1.isIcon != card2.isIcon) {
         card1.isMatched = true;
         card2.isMatched = true;
-        _points++;
+        _lifeManager.addPoint(); // Suma punto
 
-        await _playCorrect(); // Sonido de acierto
+        await _playCorrect();
 
-        // Si ya no quedan cartas sin emparejar, muestra mensaje de victoria
         if (_cards.every((c) => c.isMatched)) {
           await Future.delayed(const Duration(milliseconds: 600));
-          await _playWin(); // <-- Sonido de victoria
+          await _playWin();
           CelebrationOverlay.show(context, win: true);
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24)),
-              title: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Text('¡Felicidades!',
-                      style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber)),
-                  SizedBox(height: 8),
-                  Text('🎉', style: TextStyle(fontSize: 48)),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 36),
-                      Icon(Icons.star, color: Colors.amber, size: 36),
-                      Icon(Icons.star, color: Colors.amber, size: 36),
-                    ],
-                  ),
-                ],
-              ),
-              content: Text(
-                '¡Completaste el memorama!\n\nPuntaje: $_points ⭐',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 22,
-                    color: Colors.deepPurple,
-                    fontWeight: FontWeight.bold),
-              ),
-              actionsAlignment: MainAxisAlignment.center,
-              actions: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    foregroundColor: Colors.deepPurple,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Jugar de nuevo',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      _points = 0;
-                      _generateCards();
-                    });
-                  },
-                ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  icon: const Icon(Icons.exit_to_app),
-                  label: const Text('Salir',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-            barrierDismissible: false,
-          );
+          _showEndDialog(won: true);
         }
       } else {
         // --- SONIDO DE ERROR ---
         await _playError();
         card1.isFlipped = false;
         card2.isFlipped = false;
+        _lifeManager.loseLife(); // Pierde vida
+
+        if (_lifeManager.isGameOver) {
+          await _playError();
+          CelebrationOverlay.show(context, win: false);
+          _showEndDialog(won: false);
+        }
       }
 
       _selectedIndex1 = null;
@@ -197,6 +151,84 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
 
       setState(() {});
     }
+  }
+
+  void _showEndDialog({required bool won}) {
+    final stars = StarSystem.calculateStars(
+      points: _lifeManager.points,
+      total: _pairs.length,
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              won ? '¡Felicidades!' : '¡Inténtalo de nuevo!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: won ? Colors.amber : Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(won ? '🎉' : '💔', style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 8),
+            StarRow(stars),
+          ],
+        ),
+        content: Text(
+          won
+              ? '¡Completaste el memorama!\n\nPuntaje: ${_lifeManager.points} ⭐'
+              : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.deepPurple,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                _generateCards();
+              });
+            },
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.exit_to_app),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _playClick() async {
@@ -271,42 +303,61 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                   // Puntuación
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Puntos: $_points',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
-                            shadows: [
-                              Shadow(
-                                  blurRadius: 0,
-                                  color: Colors.white,
-                                  offset: Offset(-2, -2)),
-                              Shadow(
-                                  blurRadius: 0,
-                                  color: Colors.white,
-                                  offset: Offset(2, -2)),
-                              Shadow(
-                                  blurRadius: 0,
-                                  color: Colors.white,
-                                  offset: Offset(2, 2)),
-                              Shadow(
-                                  blurRadius: 0,
-                                  color: Colors.white,
-                                  offset: Offset(-2, 2)),
-                              Shadow(
-                                  blurRadius: 4,
-                                  color: Colors.black45,
-                                  offset: Offset(2, 2)),
-                            ],
-                          ),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.85),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
+                            ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                            const SizedBox(width: 18),
+                            const Icon(Icons.star, color: Colors.amber, size: 28),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Puntos: ${_lifeManager.points}',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                                shadows: [
+                                  Shadow(
+                                      blurRadius: 0,
+                                      color: Colors.white,
+                                      offset: Offset(-2, -2)),
+                                  Shadow(
+                                      blurRadius: 0,
+                                      color: Colors.white,
+                                      offset: Offset(2, -2)),
+                                  Shadow(
+                                      blurRadius: 0,
+                                      color: Colors.white,
+                                      offset: Offset(2, 2)),
+                                  Shadow(
+                                      blurRadius: 0,
+                                      color: Colors.white,
+                                      offset: Offset(-2, 2)),
+                                  Shadow(
+                                      blurRadius: 4,
+                                      color: Colors.black45,
+                                      offset: Offset(2, 2)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   // Grid del memorama
@@ -401,4 +452,23 @@ class _CardModel {
     required this.isIcon,
     required this.pairKey,
   });
+}
+
+class StarRow extends StatelessWidget {
+  final int stars;
+  const StarRow(this.stars, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Icon(
+          index < stars ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 32,
+        );
+      }),
+    );
+  }
 }

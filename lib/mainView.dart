@@ -13,7 +13,7 @@ class ActivitiesScreen extends StatefulWidget {
   State<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends State<ActivitiesScreen> {
+class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBindingObserver {
   final AudioPlayer _player = AudioPlayer();
   final AudioPlayer _fxPlayer = AudioPlayer();
   bool _isPlaying = true;
@@ -21,13 +21,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _iniciarMusica();
   }
 
   Future<void> _iniciarMusica() async {
-    await _player.setReleaseMode(ReleaseMode.loop);
-    await _player.setVolume(0.3);
-    await _player.play(AssetSource('sounds/background_music.mp3'));
+    try {
+      await _player.setReleaseMode(ReleaseMode.loop);
+      await _player.setVolume(0.3);
+      await _player.play(AssetSource('sounds/background_music.mp3'));
+    } catch (e) {
+      debugPrint('Error al iniciar música: $e');
+    }
   }
 
   Future<void> _toggleMusica() async {
@@ -43,9 +48,19 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _player.dispose();
     _fxPlayer.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _player.pause();
+    } else if (state == AppLifecycleState.resumed && _isPlaying) {
+      _player.resume();
+    }
   }
 
   Color _colorForLetter(String letter) {
