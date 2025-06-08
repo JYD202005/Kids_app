@@ -4,6 +4,7 @@ import 'package:kids_apps2/Views/columns/math_columns.dart';
 import 'package:kids_apps2/Views/columns/read_columns.dart';
 import 'package:kids_apps2/ReadView.dart';
 import 'package:kids_apps2/MathView.dart';
+import 'package:kids_apps2/logic/music.dart';
 import 'animations/animations.dart';
 
 class ActivitiesScreen extends StatefulWidget {
@@ -13,54 +14,50 @@ class ActivitiesScreen extends StatefulWidget {
   State<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBindingObserver {
-  final AudioPlayer _player = AudioPlayer();
-  final AudioPlayer _fxPlayer = AudioPlayer();
-  bool _isPlaying = true;
+class _ActivitiesScreenState extends State<ActivitiesScreen>
+    with WidgetsBindingObserver {
+  final BackgroundMusicManager _musicManager = BackgroundMusicManager();
+  final AudioPlayer _fxPlayer = AudioPlayer(); // Solo para efectos
+  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
+    _initMusic();
     WidgetsBinding.instance.addObserver(this);
-    _iniciarMusica();
   }
 
-  Future<void> _iniciarMusica() async {
+  Future<void> _initMusic() async {
     try {
-      await _player.setReleaseMode(ReleaseMode.loop);
-      await _player.setVolume(0.3);
-      await _player.play(AssetSource('sounds/background_music.mp3'));
+      await BackgroundMusicManager.start();
+      setState(() => _isPlaying = true);
     } catch (e) {
-      debugPrint('Error al iniciar música: $e');
+      debugPrint('No se pudo iniciar la música: $e');
     }
   }
 
   Future<void> _toggleMusica() async {
-    if (_isPlaying) {
-      await _player.pause();
-    } else {
-      await _player.resume();
-    }
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
+    await BackgroundMusicManager.toggle();
+    setState(() => _isPlaying = !_isPlaying);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _player.dispose();
+    BackgroundMusicManager.dispose();
     _fxPlayer.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  Future<void> _playSeleccionar() async {
+    await _fxPlayer.stop();
+    await _fxPlayer.setVolume(1.0);
+    await _fxPlayer.play(AssetSource('sounds/seleccionar.mp3'));
+  }
+
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _player.pause();
-    } else if (state == AppLifecycleState.resumed && _isPlaying) {
-      _player.resume();
-    }
+  void reassemble() {
+    super.reassemble();
   }
 
   Color _colorForLetter(String letter) {
@@ -75,12 +72,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
     ];
     final code = letter.codeUnitAt(0);
     return colors[code % colors.length];
-  }
-
-  Future<void> _playSeleccionar() async {
-    await _fxPlayer.stop();
-    await _fxPlayer.setVolume(1.0);
-    await _fxPlayer.play(AssetSource('sounds/seleccionar.mp3'));
   }
 
   @override
@@ -131,17 +122,38 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
                         shadows: [
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, -2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, -2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, 2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, 2)),
-                          Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(2, 2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(-2, -2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(2, -2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(2, 2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(-2, 2)),
+                          Shadow(
+                              blurRadius: 4,
+                              color: Colors.black45,
+                              offset: Offset(2, 2)),
                         ],
                       ),
                       children: [
-                        TextSpan(text: 'LEER ', style: TextStyle(color: Colors.blue)),
-                        TextSpan(text: 'y\n', style: TextStyle(color: Colors.green, fontSize: 34)),
-                        TextSpan(text: 'SUMAR', style: TextStyle(color: Colors.red)),
+                        TextSpan(
+                            text: 'LEER ',
+                            style: TextStyle(color: Colors.blue)),
+                        TextSpan(
+                            text: 'y\n',
+                            style:
+                                TextStyle(color: Colors.green, fontSize: 34)),
+                        TextSpan(
+                            text: 'SUMAR', style: TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),
@@ -155,10 +167,22 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF9C27B0),
                         shadows: [
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, -2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, -2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(2, 2)),
-                          Shadow(blurRadius: 0, color: Colors.white, offset: Offset(-2, 2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(-2, -2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(2, -2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(2, 2)),
+                          Shadow(
+                              blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(-2, 2)),
                         ],
                       ),
                     ),
@@ -175,7 +199,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children: ReadDataMain.tiles.asMap().entries.map((entry) {
+                                children: ReadDataMain.tiles
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
                                   final index = entry.key;
                                   final tile = entry.value;
 
@@ -183,24 +210,32 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                     key: UniqueKey(),
                                     onTap: () async {
                                       await _playSeleccionar();
-                                      await Future.delayed(const Duration(milliseconds: 250));
+                                      await Future.delayed(
+                                          const Duration(milliseconds: 250));
                                       if (index == 0) {
                                         await Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const LettersScreen()),
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const LettersScreen()),
                                         );
                                         setState(() {});
                                       }
                                     },
                                     child: Container(
-                                      margin: const EdgeInsets.symmetric(vertical: 10),
-                                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14, horizontal: 4),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFf2e9dc),
-                                        border: Border.all(color: Colors.black, width: 2),
+                                        border: Border.all(
+                                            color: Colors.black, width: 2),
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
-                                          const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                          const BoxShadow(
+                                              color: Colors.orangeAccent,
+                                              spreadRadius: 2),
                                           BoxShadow(
                                             color: Colors.black26,
                                             blurRadius: 12,
@@ -211,7 +246,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                       child: Row(
                                         children: [
                                           Image.asset(
-                                            tile['icon'] ?? 'assets/images/readcol.png',
+                                            tile['icon'] ??
+                                                'assets/images/readcol.png',
                                             width: 70,
                                             height: 70,
                                           ),
@@ -224,10 +260,15 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'ComicNeue',
                                                 ),
-                                                children: (tile['text'] ?? 'ABC').split('').map((char) {
+                                                children:
+                                                    (tile['text'] ?? 'ABC')
+                                                        .split('')
+                                                        .map((char) {
                                                   return TextSpan(
                                                     text: char,
-                                                    style: TextStyle(color: _colorForLetter(char)),
+                                                    style: TextStyle(
+                                                        color: _colorForLetter(
+                                                            char)),
                                                   );
                                                 }).toList(),
                                               ),
@@ -245,7 +286,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children: MathDataMain.tiles.asMap().entries.map((entry) {
+                                children: MathDataMain.tiles
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
                                   final index = entry.key;
                                   final tile = entry.value;
 
@@ -256,20 +300,27 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                       if (index == 0) {
                                         await Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const MathView()),
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const MathView()),
                                         );
                                         setState(() {});
                                       }
                                     },
                                     child: Container(
-                                      margin: const EdgeInsets.symmetric(vertical: 10),
-                                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14, horizontal: 4),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFf2e9dc),
-                                        border: Border.all(color: Colors.black, width: 2),
+                                        border: Border.all(
+                                            color: Colors.black, width: 2),
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
-                                          const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                          const BoxShadow(
+                                              color: Colors.orangeAccent,
+                                              spreadRadius: 2),
                                           BoxShadow(
                                             color: Colors.black26,
                                             blurRadius: 12,
@@ -288,10 +339,15 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'ComicNeue',
                                                 ),
-                                                children: (tile['text'] ?? '123').split('').map((char) {
+                                                children:
+                                                    (tile['text'] ?? '123')
+                                                        .split('')
+                                                        .map((char) {
                                                   return TextSpan(
                                                     text: char,
-                                                    style: TextStyle(color: _colorForLetter(char)),
+                                                    style: TextStyle(
+                                                        color: _colorForLetter(
+                                                            char)),
                                                   );
                                                 }).toList(),
                                               ),
@@ -299,7 +355,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                                           ),
                                           const SizedBox(width: 12),
                                           Image.asset(
-                                            tile['icon'] ?? 'assets/images/mathcol.png',
+                                            tile['icon'] ??
+                                                'assets/images/mathcol.png',
                                             width: 70,
                                             height: 70,
                                           ),
@@ -322,13 +379,17 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
                               // Acción del botón central
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 24),
                               decoration: BoxDecoration(
                                 color: Colors.amber[100],
-                                border: Border.all(color: Colors.black, width: 2),
+                                border:
+                                    Border.all(color: Colors.black, width: 2),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
-                                  const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                  const BoxShadow(
+                                      color: Colors.orangeAccent,
+                                      spreadRadius: 2),
                                   BoxShadow(
                                     color: Colors.black26,
                                     blurRadius: 12,
@@ -371,4 +432,3 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with WidgetsBinding
     );
   }
 }
-
