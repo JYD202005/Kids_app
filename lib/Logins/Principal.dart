@@ -18,7 +18,7 @@ class _InicioState extends State<Inicio> {
   final TextEditingController _correo = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  String _miniUser = '';
+  String _miniUser = ' ';
   bool _isLogin = false;
   @override
   void initState() {
@@ -31,10 +31,16 @@ class _InicioState extends State<Inicio> {
   }
 
   Future<void> main() async {
-    String mini = await storage.obtenerNombre() ?? '';
-    setState(() {
-      _miniUser = mini;
-    });
+    String mini = await storage.obtenerNombre() ?? ' ';
+    if (mini != 'n') {
+      setState(() {
+        _miniUser = mini;
+      });
+    } else {
+      setState(() {
+        _miniUser = '__';
+      });
+    }
   }
 
   @override
@@ -140,15 +146,20 @@ class _InicioState extends State<Inicio> {
                     height: 60,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        String UID = await storage.obtenerCodigo() ?? 'c';
-                        String NOMBRE = await storage.obtenerNombre() ?? 'n';
+                        String UID = await storage.obtenerCodigo() ?? '';
+                        String NOMBRE = await storage.obtenerNombre() ?? '';
+
                         if (!UID.isEmpty && !NOMBRE.isEmpty) {
                           inicio();
+                          if (!mounted) return;
+                          setState(() {
+                            _isLogin = false;
+                          });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text(
-                                    'No se encontró el usuario en el dispositivo')),
+                                    'No se encontró el usuario en el dispositivo, busquelo de nuevo')),
                           );
                           if (!mounted) return;
                           setState(() {
@@ -195,7 +206,7 @@ class _InicioState extends State<Inicio> {
               ),
             ),
           ),
-          if (_isLogin == true)
+          if (_isLogin == true && mounted)
             Container(
               color: Colors.black.withOpacity(0.8),
               child: const Center(
@@ -338,6 +349,9 @@ class _InicioState extends State<Inicio> {
         const SnackBar(
             content: Text('No se encontró el usuario en el dispositivo')),
       );
+      setState(() {
+        _isLogin = false;
+      });
       return;
     }
     final response = await supabase
@@ -378,10 +392,18 @@ class _InicioState extends State<Inicio> {
                 builder: (context) => ActivitiesScreen(),
               ),
             );
+            if (!mounted) return;
+            setState(() {
+              _isLogin = false;
+            });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Error al iniciar sesión')),
             );
+            if (!mounted) return;
+            setState(() {
+              _isLogin = false;
+            });
           }
         }
       }
