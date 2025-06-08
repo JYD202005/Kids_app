@@ -6,10 +6,6 @@ class MathDataMain {
     },
     {
       'icon': 'assets/images/mathcol.png',
-      'text': '0 1 2 3',
-    },
-    {
-      'icon': 'assets/images/mathcol.png',
       'text': '1 + 2 = 3',
     },
   ];

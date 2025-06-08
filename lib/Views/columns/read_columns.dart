@@ -8,9 +8,5 @@ class ReadDataMain {
       'icon': 'assets/images/readcol.png',
       'text': 'A E I O U',
     },
-    {
-      'icon': 'assets/images/readcol.png',
-      'text': 'B C D F G',
-    },
   ];
 }

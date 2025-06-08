@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
-
+//Puntos Locales no de la clase
 class GuessTheLetterScreen extends StatefulWidget {
   const GuessTheLetterScreen({super.key});
 
@@ -312,10 +312,36 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                     ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red)),
                     ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red)),
                     const SizedBox(width: 24),
-                    Text(
-                      'Puntos: ${_lifeManager.points}',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                        Text(
+                          'Puntos: ${_lifeManager.points}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
                   ],
                 ),
               ),

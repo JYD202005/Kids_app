@@ -15,7 +15,7 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen> {
   final AudioPlayer _player = AudioPlayer();
-  final AudioPlayer _fxPlayer = AudioPlayer(); // Añade esto a tu clase (no dentro de un método)
+  final AudioPlayer _fxPlayer = AudioPlayer();
   bool _isPlaying = true;
 
   @override
@@ -26,7 +26,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
   Future<void> _iniciarMusica() async {
     await _player.setReleaseMode(ReleaseMode.loop);
-    await _player.setVolume(0.3); // Música de fondo más baja
+    await _player.setVolume(0.3);
     await _player.play(AssetSource('sounds/background_music.mp3'));
   }
 
@@ -44,7 +44,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   @override
   void dispose() {
     _player.dispose();
-    _fxPlayer.dispose(); // Asegúrate de liberar el recurso del reproductor de efectos
+    _fxPlayer.dispose();
     super.dispose();
   }
 
@@ -151,148 +151,197 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                   const SizedBox(height: 24),
                   // Grid de actividades
                   Expanded(
-                    child: Row(
+                    child: Column(
                       children: [
-                        // Columna izquierda: Lectura
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: ReadDataMain.tiles.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final tile = entry.value;
+                        // Lectura y Matemáticas
+                        Row(
+                          children: [
+                            // Columna izquierda: Lectura
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: ReadDataMain.tiles.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final tile = entry.value;
 
-                              Widget card = BouncingCard(
-                                key: UniqueKey(),
-                                onTap: () async {
-                                  await _playSeleccionar();
-                                  // Espera un poco para que el sonido se escuche antes de navegar
-                                  await Future.delayed(const Duration(milliseconds: 250));
-                                  if (index == 0) {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const LettersScreen()),
-                                    );
-                                    setState(() {});
-                                  }
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 10),
-                                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFf2e9dc),
-                                    border: Border.all(color: Colors.black, width: 2),
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 12,
-                                        offset: Offset(0, 8),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Image.asset(
-                                        tile['icon'] ?? 'assets/images/readcol.png',
-                                        width: 70,
-                                        height: 70,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            style: const TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'ComicNeue',
-                                            ),
-                                            children: (tile['text'] ?? 'ABC').split('').map((char) {
-                                              return TextSpan(
-                                                text: char,
-                                                style: TextStyle(color: _colorForLetter(char)),
-                                              );
-                                            }).toList(),
+                                  return BouncingCard(
+                                    key: UniqueKey(),
+                                    onTap: () async {
+                                      await _playSeleccionar();
+                                      await Future.delayed(const Duration(milliseconds: 250));
+                                      if (index == 0) {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const LettersScreen()),
+                                        );
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(vertical: 10),
+                                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFf2e9dc),
+                                        border: Border.all(color: Colors.black, width: 2),
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 12,
+                                            offset: Offset(0, 8),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            tile['icon'] ?? 'assets/images/readcol.png',
+                                            width: 70,
+                                            height: 70,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'ComicNeue',
+                                                ),
+                                                children: (tile['text'] ?? 'ABC').split('').map((char) {
+                                                  return TextSpan(
+                                                    text: char,
+                                                    style: TextStyle(color: _colorForLetter(char)),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            // Columna derecha: Matemáticas
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: MathDataMain.tiles.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final tile = entry.value;
 
-                              return card;
-                            }).toList(),
-                          ),
+                                  return BouncingCard(
+                                    key: UniqueKey(),
+                                    onTap: () async {
+                                      await _playSeleccionar();
+                                      if (index == 0) {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const MathView()),
+                                        );
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(vertical: 10),
+                                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFf2e9dc),
+                                        border: Border.all(color: Colors.black, width: 2),
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 12,
+                                            offset: Offset(0, 8),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: RichText(
+                                              textAlign: TextAlign.right,
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'ComicNeue',
+                                                ),
+                                                children: (tile['text'] ?? '123').split('').map((char) {
+                                                  return TextSpan(
+                                                    text: char,
+                                                    style: TextStyle(color: _colorForLetter(char)),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Image.asset(
+                                            tile['icon'] ?? 'assets/images/mathcol.png',
+                                            width: 70,
+                                            height: 70,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 24),
-                        // Columna derecha: Matemáticas
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: MathDataMain.tiles.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final tile = entry.value;
-
-                              return BouncingCard(
-                                key: UniqueKey(),
-                                onTap: () async {
-                                  await _playSeleccionar();
-                                  if (index == 0) {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const MathView()),
-                                    );
-                                    setState(() {});
-                                  }
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 10),
-                                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFf2e9dc),
-                                    border: Border.all(color: Colors.black, width: 2),
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 12,
-                                        offset: Offset(0, 8),
-                                      ),
-                                    ],
+                        const SizedBox(height: 24),
+                        // Columna central (debajo)
+                        Center(
+                          child: BouncingCard(
+                            key: UniqueKey(),
+                            onTap: () async {
+                              await _playSeleccionar();
+                              // Acción del botón central
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                              decoration: BoxDecoration(
+                                color: Colors.amber[100],
+                                border: Border.all(color: Colors.black, width: 2),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  const BoxShadow(color: Colors.orangeAccent, spreadRadius: 2),
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 12,
+                                    offset: Offset(0, 8),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: RichText(
-                                          textAlign: TextAlign.right,
-                                          text: TextSpan(
-                                            style: const TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'ComicNeue',
-                                            ),
-                                            children: (tile['text'] ?? '123').split('').map((char) {
-                                              return TextSpan(
-                                                text: char,
-                                                style: TextStyle(color: _colorForLetter(char)),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Image.asset(
-                                        tile['icon'] ?? 'assets/images/mathcol.png',
-                                        width: 70,
-                                        height: 70,
-                                      ),
-                                    ],
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/bonuscol.png',
+                                    width: 70,
+                                    height: 70,
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'BONUS',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'ComicNeue',
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -307,3 +356,4 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     );
   }
 }
+

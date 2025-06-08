@@ -9,8 +9,8 @@ import 'dart:ui'; // para usar Offset
 
 
 final Map<String, List<Offset>> letterKeyPoints = {
-  'A': [Offset(160, 60), Offset(100, 260), Offset(220, 260), Offset(160, 160)],
-  'B': [Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 60), Offset(180, 160), Offset(180, 260)],
+  'A': [Offset(150, 110), Offset(110, 230), Offset(210, 230), Offset(150, 190)],
+  'B': [Offset(110, 90), Offset(115, 160), Offset(110, 260), Offset(180, 110), Offset(180, 160), Offset(180, 220)],
   'C': [Offset(180, 60), Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 260)],
   'D': [Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 60), Offset(180, 260)],
   'E': [Offset(180, 60), Offset(100, 60), Offset(100, 160), Offset(100, 260), Offset(180, 260), Offset(140, 160)],

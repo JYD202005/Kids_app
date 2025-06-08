@@ -174,7 +174,7 @@ class _ThingWordGameState extends State<ThingWordGame> {
         ),
         content: Text(
           won
-              ? '¡Completaste todas las palabras!\n\nPuntaje: ${_lifeManager.points} ⭐'
+              ? '¡Completaste todas las palabras!\nPuntaje: ${_lifeManager.points} ⭐'
               : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
           textAlign: TextAlign.center,
           style: const TextStyle(

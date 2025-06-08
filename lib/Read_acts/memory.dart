@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
-
+//Puntos Locales no de la clase
 class MemoramaScreen extends StatefulWidget {
   const MemoramaScreen({super.key});
 
@@ -61,6 +61,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   @override
   void initState() {
     super.initState();
+    
     _generateCards();
   }
 
