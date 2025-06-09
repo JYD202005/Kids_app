@@ -46,6 +46,7 @@ class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         toolbarHeight: 70,
@@ -123,21 +124,25 @@ class _InicioState extends State<Inicio> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Iniciar Sesión',
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  Center(
+                    child: const Text(
+                      'Iniciar Sesión',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    '¡Bienvenido(a) $_miniUser!',
-                    style: const TextStyle(
-                      fontSize: 26,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                  Center(
+                    child: Text(
+                      '¡Bienvenido(a) $_miniUser!',
+                      style: const TextStyle(
+                        fontSize: 26,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -257,32 +262,34 @@ class _InicioState extends State<Inicio> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildInputField(_correo, 'Ingrese su correo registrado'),
-              const SizedBox(height: 20),
-              _buildInputField(_password, 'Ingrese su contraseña registrada',
-                  obscure: true),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  cambiousuario(_correo.text.trim(), _password.text.trim());
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.search),
-                label: const Text('Buscar', style: TextStyle(fontSize: 20)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildInputField(_correo, 'Ingrese su correo registrado'),
+                const SizedBox(height: 20),
+                _buildInputField(_password, 'Ingrese su contraseña registrada',
+                    obscure: true),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    cambiousuario(_correo.text.trim(), _password.text.trim());
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.search),
+                  label: const Text('Buscar', style: TextStyle(fontSize: 20)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orangeAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

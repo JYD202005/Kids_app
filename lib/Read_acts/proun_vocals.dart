@@ -130,8 +130,8 @@ class _PronounceVowelsScreenState extends State<PronounceVowelsScreen> {
                   Expanded(
                     child: GridView.builder(
                       itemCount: _vowels.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200, // Máximo ancho de cada botón
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                         childAspectRatio: 1.0,
@@ -148,7 +148,8 @@ class _PronounceVowelsScreenState extends State<PronounceVowelsScreen> {
                                   : _buttonColors[index],
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: isSelected ? Colors.amber : Colors.black26,
+                                color:
+                                    isSelected ? Colors.amber : Colors.black26,
                                 width: isSelected ? 4 : 2,
                               ),
                               boxShadow: [
@@ -161,6 +162,9 @@ class _PronounceVowelsScreenState extends State<PronounceVowelsScreen> {
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .center, // <-- para centrar horizontalmente
+                              mainAxisSize: MainAxisSize.min, // <-- importante!
                               children: [
                                 Stack(
                                   alignment: Alignment.center,
@@ -194,12 +198,18 @@ class _PronounceVowelsScreenState extends State<PronounceVowelsScreen> {
                                   style: const TextStyle(fontSize: 32),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  _vowelWords[index],
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.deepPurple,
+                                Flexible(
+                                  // <-- le da adaptabilidad
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      _vowelWords[index],
+                                      style: const TextStyle(
+                                        fontSize: 18, // no hace falta cambiarlo
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.deepPurple,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -213,15 +223,21 @@ class _PronounceVowelsScreenState extends State<PronounceVowelsScreen> {
                   // Pie de página divertido
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.volume_up, color: Colors.amber, size: 28),
-                      SizedBox(width: 8),
-                      Text(
-                        "¡Toca una vocal para escuchar su sonido!",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                    children: [
+                      const Icon(Icons.volume_up,
+                          color: Colors.amber, size: 28),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            "¡Toca una vocal para escuchar su sonido!",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
                         ),
                       ),
                     ],

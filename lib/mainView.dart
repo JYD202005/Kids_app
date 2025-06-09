@@ -127,11 +127,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                     backgroundColor: Colors.amber[50],
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(24),
-                                      side: const BorderSide(color: Colors.deepPurple, width: 2),
+                                      side: const BorderSide(
+                                          color: Colors.deepPurple, width: 2),
                                     ),
                                     title: Row(
                                       children: [
-                                        const Icon(Icons.lock, color: Colors.deepPurple, size: 32),
+                                        const Icon(Icons.lock,
+                                            color: Colors.deepPurple, size: 32),
                                         const SizedBox(width: 10),
                                         const Text(
                                           'Filtro parental',
@@ -143,123 +145,154 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                         ),
                                       ],
                                     ),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          'Responde la multiplicación para continuar:',
-                                          style: TextStyle(fontSize: 16, color: Colors.deepPurple),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 18),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                                          decoration: BoxDecoration(
-                                            color: Colors.deepPurple.shade100,
-                                            borderRadius: BorderRadius.circular(16),
-                                            border: Border.all(color: Colors.deepPurple, width: 2),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                color: Colors.orangeAccent,
-                                                blurRadius: 8,
-                                                offset: Offset(0, 2),
-                                              ),
-                                            ],
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text(
+                                            'Responde la multiplicación para continuar:',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.deepPurple),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                '$a',
-                                                style: const TextStyle(
-                                                  fontSize: 32,
-                                                  fontWeight: FontWeight.bold,
+                                          const SizedBox(height: 18),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 12, horizontal: 24),
+                                            decoration: BoxDecoration(
+                                              color: Colors.deepPurple.shade100,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              border: Border.all(
                                                   color: Colors.deepPurple,
+                                                  width: 2),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Colors.orangeAccent,
+                                                  blurRadius: 8,
+                                                  offset: Offset(0, 2),
                                                 ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              const Text(
-                                                '×',
-                                                style: TextStyle(
-                                                  fontSize: 32,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.orange,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                '$b',
-                                                style: const TextStyle(
-                                                  fontSize: 32,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.deepPurple,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              const Text(
-                                                '= ?',
-                                                style: TextStyle(
-                                                  fontSize: 32,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.orange,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        TextField(
-                                          controller: controller,
-                                          keyboardType: TextInputType.number,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                                          decoration: InputDecoration(
-                                            hintText: 'Respuesta',
-                                            errorText: errorText,
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(14),
-                                              borderSide: const BorderSide(color: Colors.deepPurple),
+                                              ],
                                             ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(14),
-                                              borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '$a',
+                                                  style: const TextStyle(
+                                                    fontSize: 32,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.deepPurple,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                const Text(
+                                                  '×',
+                                                  style: TextStyle(
+                                                    fontSize: 32,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Text(
+                                                  '$b',
+                                                  style: const TextStyle(
+                                                    fontSize: 32,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.deepPurple,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                const Text(
+                                                  '= ?',
+                                                  style: TextStyle(
+                                                    fontSize: 32,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          onChanged: (_) {
-                                            if (errorText != null) {
-                                              setState(() => errorText = null);
-                                            }
-                                          },
-                                          onSubmitted: (_) {},
-                                        ),
-                                      ],
+                                          const SizedBox(height: 18),
+                                          TextField(
+                                            controller: controller,
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold),
+                                            decoration: InputDecoration(
+                                              hintText: 'Respuesta',
+                                              errorText: errorText,
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.deepPurple),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.deepPurple,
+                                                    width: 2),
+                                              ),
+                                            ),
+                                            onChanged: (_) {
+                                              if (errorText != null) {
+                                                setState(
+                                                    () => errorText = null);
+                                              }
+                                            },
+                                            onSubmitted: (_) {},
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     actionsAlignment: MainAxisAlignment.center,
                                     actions: [
                                       TextButton.icon(
-                                        icon: const Icon(Icons.cancel, color: Colors.redAccent),
-                                        label: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.bold)),
-                                        onPressed: () => Navigator.of(context).pop(false),
+                                        icon: const Icon(Icons.cancel,
+                                            color: Colors.redAccent),
+                                        label: const Text('Cancelar',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
                                       ),
                                       ElevatedButton.icon(
-                                        icon: const Icon(Icons.check, color: Colors.white),
+                                        icon: const Icon(Icons.check,
+                                            color: Colors.white),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.deepPurple,
                                           foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14)),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 18, vertical: 10),
                                         ),
-                                        label: const Text('Aceptar', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        label: const Text('Aceptar',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
                                         onPressed: () {
-                                          final answer = int.tryParse(controller.text.trim());
+                                          final answer = int.tryParse(
+                                              controller.text.trim());
                                           if (answer == a * b) {
                                             Navigator.of(context).pop(true);
                                           } else {
                                             setState(() {
-                                              errorText = 'Respuesta incorrecta';
+                                              errorText =
+                                                  'Respuesta incorrecta';
                                             });
                                           }
                                         },
@@ -366,170 +399,84 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ),
                   const SizedBox(height: 24),
                   // Grid de actividades
-                  Flexible(
-                    child: Column(
-                      children: [
-                        // Lectura y Matemáticas
-                        Row(
-                          children: [
-                            // Columna izquierda: Lectura
-                            Flexible(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: ReadDataMain.tiles
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  final index = entry.key;
-                                  final tile = entry.value;
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(
+                          bottom: 16), // opcional para margen
+                      child: Column(
+                        children: [
+                          // Lectura y Matemáticas
+                          Row(
+                            children: [
+                              // Columna izquierda: Lectura
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: ReadDataMain.tiles
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    final index = entry.key;
+                                    final tile = entry.value;
 
-                                  return BouncingCard(
-                                    key: UniqueKey(),
-                                    onTap: () async {
-                                      await _playSeleccionar();
-                                      await Future.delayed(
-                                          const Duration(milliseconds: 250));
-                                      if (index == 0) {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const LettersScreen()),
-                                        );
-                                        setState(() {});
-                                      }
-                                      if (index == 1) {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const LettersScreen2()),
-                                        );
-                                        setState(() {});
-                                      }
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14, horizontal: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFf2e9dc),
-                                        border: Border.all(
-                                            color: Colors.black, width: 2),
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          const BoxShadow(
-                                              color: Colors.orangeAccent,
-                                              spreadRadius: 2),
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 12,
-                                            offset: Offset(0, 8),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Image.asset(
-                                            tile['icon'] ??
-                                                'assets/images/readcol.png',
-                                            width: 70,
-                                            height: 70,
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: RichText(
-                                              text: TextSpan(
-                                                style: const TextStyle(
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'ComicNeue',
-                                                ),
-                                                children:
-                                                    (tile['text'] ?? 'ABC')
-                                                        .split('')
-                                                        .map((char) {
-                                                  return TextSpan(
-                                                    text: char,
-                                                    style: TextStyle(
-                                                        color: _colorForLetter(
-                                                            char)),
-                                                  );
-                                                }).toList(),
-                                              ),
+                                    return BouncingCard(
+                                      key: UniqueKey(),
+                                      onTap: () async {
+                                        await _playSeleccionar();
+                                        await Future.delayed(
+                                            const Duration(milliseconds: 250));
+                                        if (index == 0) {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const LettersScreen()),
+                                          );
+                                          setState(() {});
+                                        }
+                                        if (index == 1) {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const LettersScreen2()),
+                                          );
+                                          setState(() {});
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 14, horizontal: 4),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFf2e9dc),
+                                          border: Border.all(
+                                              color: Colors.black, width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          boxShadow: [
+                                            const BoxShadow(
+                                                color: Colors.orangeAccent,
+                                                spreadRadius: 2),
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 12,
+                                              offset: Offset(0, 8),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            // Columna derecha: Matemáticas
-                            Flexible(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: MathDataMain.tiles
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  final index = entry.key;
-                                  final tile = entry.value;
-
-                                  return BouncingCard(
-                                    key: UniqueKey(),
-                                    onTap: () async {
-                                      await _playSeleccionar();
-                                      if (index == 0) {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const MathView()),
-                                        );
-                                        setState(() {});
-                                      }
-                                      if (index == 1) {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const MathViewdos()),
-                                        );
-                                        setState(() {});
-                                      }
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14, horizontal: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFf2e9dc),
-                                        border: Border.all(
-                                            color: Colors.black, width: 2),
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          const BoxShadow(
-                                              color: Colors.orangeAccent,
-                                              spreadRadius: 2),
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 12,
-                                            offset: Offset(0, 8),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
+                                          ],
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Image.asset(
+                                              tile['icon'] ??
+                                                  'assets/images/readcol.png',
+                                              width: 70,
+                                              height: 70,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
                                               child: RichText(
-                                                textAlign: TextAlign.right,
                                                 text: TextSpan(
                                                   style: const TextStyle(
                                                     fontSize: 22,
@@ -537,91 +484,187 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                                     fontFamily: 'ComicNeue',
                                                   ),
                                                   children:
-                                                      (tile['text'] ?? '123')
+                                                      (tile['text'] ?? 'ABC')
                                                           .split('')
                                                           .map((char) {
                                                     return TextSpan(
                                                       text: char,
                                                       style: TextStyle(
-                                                          color: _colorForLetter(
-                                                              char)),
+                                                          color:
+                                                              _colorForLetter(
+                                                                  char)),
                                                     );
                                                   }).toList(),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Image.asset(
-                                              tile['icon'] ??
-                                                  'assets/images/mathcol.png',
-                                              width: 70,
-                                              height: 70,
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              const SizedBox(width: 24),
+                              // Columna derecha: Matemáticas
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: MathDataMain.tiles
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    final index = entry.key;
+                                    final tile = entry.value;
+
+                                    return BouncingCard(
+                                      key: UniqueKey(),
+                                      onTap: () async {
+                                        await _playSeleccionar();
+                                        if (index == 0) {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MathView()),
+                                          );
+                                          setState(() {});
+                                        }
+                                        if (index == 1) {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MathViewdos()),
+                                          );
+                                          setState(() {});
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 14, horizontal: 4),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFf2e9dc),
+                                          border: Border.all(
+                                              color: Colors.black, width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          boxShadow: [
+                                            const BoxShadow(
+                                                color: Colors.orangeAccent,
+                                                spreadRadius: 2),
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 12,
+                                              offset: Offset(0, 8),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: RichText(
+                                                  textAlign: TextAlign.right,
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                      fontSize: 22,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'ComicNeue',
+                                                    ),
+                                                    children:
+                                                        (tile['text'] ?? '123')
+                                                            .split('')
+                                                            .map((char) {
+                                                      return TextSpan(
+                                                        text: char,
+                                                        style: TextStyle(
+                                                            color:
+                                                                _colorForLetter(
+                                                                    char)),
+                                                      );
+                                                    }).toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Image.asset(
+                                                tile['icon'] ??
+                                                    'assets/images/mathcol.png',
+                                                width: 70,
+                                                height: 70,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // Columna central (debajo)
+                          Center(
+                            child: BouncingCard(
+                              key: UniqueKey(),
+                              onTap: () async {
+                                await _playSeleccionar();
+                                // Acción del botón central
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 14, horizontal: 24),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber[100],
+                                  border:
+                                      Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    const BoxShadow(
+                                        color: Colors.orangeAccent,
+                                        spreadRadius: 2),
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 12,
+                                      offset: Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/bonuscol.png',
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'BONUS',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'ComicNeue',
+                                        color: Colors.deepPurple,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Columna central (debajo)
-                        Center(
-                          child: BouncingCard(
-                            key: UniqueKey(),
-                            onTap: () async {
-                              await _playSeleccionar();
-                              // Acción del botón central
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 24),
-                              decoration: BoxDecoration(
-                                color: Colors.amber[100],
-                                border:
-                                    Border.all(color: Colors.black, width: 2),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  const BoxShadow(
-                                      color: Colors.orangeAccent,
-                                      spreadRadius: 2),
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 12,
-                                    offset: Offset(0, 8),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/bonuscol.png',
-                                    width: 70,
-                                    height: 70,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    'BONUS',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'ComicNeue',
-                                      color: Colors.deepPurple,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],

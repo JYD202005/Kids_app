@@ -45,6 +45,7 @@ class _LoginregistroState extends State<Loginregistro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.green,
         title: const Text(

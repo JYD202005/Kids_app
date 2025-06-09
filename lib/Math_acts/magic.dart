@@ -82,7 +82,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: const Text('Resultado de verificación'),
           content: Text(
             result,
@@ -146,10 +147,12 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -161,10 +164,12 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -261,7 +266,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -276,8 +282,14 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -341,7 +353,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 child: Center(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      double gridSize = _calculateGridSize(context, constraints);
+                      double gridSize =
+                          _calculateGridSize(context, constraints);
                       return Container(
                         width: gridSize,
                         height: gridSize,
@@ -361,7 +374,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             childAspectRatio: 1.0,
                             crossAxisSpacing: 4.0,
@@ -389,7 +403,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                   elevation: 6,
                 ),
                 icon: const Icon(Icons.manage_search, size: 28),
@@ -421,7 +436,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                             if (!availableNumbers.contains(numberFromGrid)) {
                               for (int r = 0; r < magicSquare.size; r++) {
                                 for (int c = 0; c < magicSquare.size; c++) {
-                                  if (magicSquare.grid[r][c] == numberFromGrid) {
+                                  if (magicSquare.grid[r][c] ==
+                                      numberFromGrid) {
                                     magicSquare.grid[r][c] = null;
                                   }
                                 }
