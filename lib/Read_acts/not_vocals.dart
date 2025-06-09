@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
 import 'dart:math';
@@ -14,7 +16,32 @@ class NotVowelsGame extends StatefulWidget {
 class _NotVowelsGameState extends State<NotVowelsGame> {
   final AudioPlayer _player = AudioPlayer();
   final List<String> _allLetters = [
-    'A', 'B', 'C', 'E', 'I', 'L', 'O', 'P', 'U', 'M', 'G', 'D', 'F', 'H', 'J', 'K', 'N', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'
+    'A',
+    'B',
+    'C',
+    'E',
+    'I',
+    'L',
+    'O',
+    'P',
+    'U',
+    'M',
+    'G',
+    'D',
+    'F',
+    'H',
+    'J',
+    'K',
+    'N',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z'
   ];
   final List<String> _vowels = ['A', 'E', 'I', 'O', 'U'];
   final Random _random = Random();
@@ -25,10 +52,22 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
   late LifePointManager _lifeManager;
   int _currentIndex = 0;
   int _rounds = 5;
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'not_vocals'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _setupRound();
     // Reproducir audio al entrar
@@ -40,7 +79,8 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
   void _setupRound() {
     _selected.clear();
     // Selecciona 5 letras aleatorias, siempre al menos 2 no vocales y 2 vocales
-    List<String> consonants = _allLetters.where((l) => !_vowels.contains(l)).toList();
+    List<String> consonants =
+        _allLetters.where((l) => !_vowels.contains(l)).toList();
     List<String> vowels = _vowels.toList();
 
     consonants.shuffle(_random);
@@ -76,7 +116,8 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
     final isCorrect = !_vowels.contains(letter);
     if (isCorrect) {
       await _playSound('correcto');
-      if (_selected.where((l) => !_vowels.contains(l)).length == _notVowels.length) {
+      if (_selected.where((l) => !_vowels.contains(l)).length ==
+          _notVowels.length) {
         _lifeManager.addPoint();
         await Future.delayed(const Duration(milliseconds: 700));
         if (_lifeManager.points == _rounds) {
@@ -102,12 +143,15 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
     setState(() {});
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _rounds,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -147,10 +191,12 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -164,10 +210,12 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -211,7 +259,8 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -226,8 +275,14 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -271,7 +326,8 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
               const SizedBox(height: 24),
               Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
                 color: Colors.amber.shade50,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -309,7 +365,9 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? (isCorrect ? Colors.greenAccent.shade100 : Colors.redAccent.shade100)
+                            ? (isCorrect
+                                ? Colors.greenAccent.shade100
+                                : Colors.redAccent.shade100)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(

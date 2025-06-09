@@ -6,7 +6,7 @@ class ProgressService {
   // Obtener progreso actual
   Future<Map<String, dynamic>?> getProgress(String userId) async {
     final response = await _supabase
-        .from('Progress')
+        .from('game_progress')
         .select()
         .eq('user_id', userId)
         .maybeSingle();
@@ -47,14 +47,14 @@ class ProgressService {
 
     if (progress == null) {
       // Si no existe, insertamos
-      await _supabase.from('Progress').insert({
+      await _supabase.from('game_progress').insert({
         'user_id': userId,
         'points': currentPoints,
         'times_played': timesPlayedMap,
       });
     } else {
       // Si existe, actualizamos
-      await _supabase.from('Progress').update({
+      await _supabase.from('game_progress').update({
         'points': currentPoints,
         'times_played': timesPlayedMap,
       }).eq('user_id', userId);

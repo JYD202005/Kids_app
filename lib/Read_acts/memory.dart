@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../logic/life_point.dart'; // Agrega este import
+
 //Puntos Locales no de la clase
 class MemoramaScreen extends StatefulWidget {
   const MemoramaScreen({super.key});
@@ -62,10 +65,22 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   ];
 
   final AudioPlayer _player = AudioPlayer();
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'memory'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _generateCards();
   }
@@ -73,13 +88,15 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   void _generateCards() async {
     final List<_CardModel> cards = [];
     for (final pair in _pairs) {
-      cards.add(_CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
-      cards.add(_CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
+      cards.add(
+          _CardModel(content: pair.icon, isIcon: true, pairKey: pair.label));
+      cards.add(
+          _CardModel(content: pair.label, isIcon: false, pairKey: pair.label));
     }
     cards.shuffle();
     _cards = cards;
     _lifeManager.reset();
-    
+
     // Mostrar todos los pares boca arriba al inicio
     if (!mounted) return; // Verifica si el widget está montado
     setState(() {
@@ -101,7 +118,10 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
   }
 
   void _onCardTap(int index) async {
-    if (_wait || _cards[index].isFlipped || _cards[index].isMatched || _showingPairs) return;
+    if (_wait ||
+        _cards[index].isFlipped ||
+        _cards[index].isMatched ||
+        _showingPairs) return;
 
     await _playClick();
     if (!mounted) return;
@@ -155,12 +175,15 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     }
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _pairs.length,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -308,7 +331,8 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.85),
                           borderRadius: BorderRadius.circular(18),
@@ -323,10 +347,17 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                            ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                            ...List.generate(
+                                _lifeManager.lives,
+                                (i) => const Icon(Icons.favorite,
+                                    color: Colors.red, size: 28)),
+                            ...List.generate(
+                                3 - _lifeManager.lives,
+                                (i) => const Icon(Icons.favorite_border,
+                                    color: Colors.red, size: 28)),
                             const SizedBox(width: 18),
-                            const Icon(Icons.star, color: Colors.amber, size: 28),
+                            const Icon(Icons.star,
+                                color: Colors.amber, size: 28),
                             const SizedBox(width: 6),
                             Text(
                               'Puntos: ${_lifeManager.points}',

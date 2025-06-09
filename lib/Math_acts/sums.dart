@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
 import 'dart:math';
@@ -11,24 +13,24 @@ class GuessTheSumScreen extends StatefulWidget {
   State<GuessTheSumScreen> createState() => _GuessTheSumScreenState();
 }
 
-  class StarRow extends StatelessWidget {
-    final int stars;
-    const StarRow(this.stars, {super.key});
+class StarRow extends StatelessWidget {
+  final int stars;
+  const StarRow(this.stars, {super.key});
 
-    @override
-    Widget build(BuildContext context) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
-          return Icon(
-            index < stars ? Icons.star : Icons.star_border,
-            color: Colors.amber,
-            size: 32,
-          );
-        }),
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Icon(
+          index < stars ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 32,
+        );
+      }),
+    );
   }
+}
 
 class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
   final AudioPlayer _player = AudioPlayer();
@@ -37,13 +39,26 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
   int _currentIndex = 0;
   late List<_SumItem> _items;
   List<int> _options = [];
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'sums'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _items = _generateSumItems();
-    int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
+    int stars = StarSystem.calculateStars(
+        points: _lifeManager.points, total: _items.length);
     _generateOptions();
   }
 
@@ -97,11 +112,15 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
     });
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _items.length,
     );
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
 
     showDialog(
       context: context,
@@ -142,10 +161,12 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -160,10 +181,12 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -173,7 +196,6 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
       ),
     );
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +227,8 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -220,8 +243,14 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -264,13 +293,15 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
               // Emoji decorativo + suma
               Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: BouncingCard(
                     child: Text(
                       '${item.a} + ${item.b}',
-                      style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 64, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -284,9 +315,12 @@ class _GuessTheSumScreenState extends State<GuessTheSumScreen> {
                   return ElevatedButton(
                     onPressed: () => _onOptionTap(value),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.primaries[value % Colors.primaries.length],
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor:
+                          Colors.primaries[value % Colors.primaries.length],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     child: Text(
                       '$value',

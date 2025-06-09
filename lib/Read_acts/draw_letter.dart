@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/progress.dart';
 import 'package:signature/signature.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
 import 'dart:math' as math;
 import 'dart:ui'; // para usar Offset
+import 'package:kids_apps2/Logins/guardadolocal.dart';
 
 final Map<String, List<Offset>> letterKeyPoints = {
   // Ajustes para la letra A:
@@ -63,11 +65,25 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
   final SignatureController _controller =
       SignatureController(penStrokeWidth: 5);
   final AudioPlayer _player = AudioPlayer();
+  late ProgressService _progressService;
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId =
+      'letter_tracing_game'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
 
   @override
   void initState() {
     super.initState();
+    codigo();
     _lifeManager = LifePointManager();
+    _progressService = ProgressService();
+  }
+
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
   }
 
   Future<void> _playSound(String name) async {
@@ -177,11 +193,15 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
     return percentTouched > 0.7;
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _letters.length,
     );
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -437,8 +457,14 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.check),
-                    label: const Text('Evaluar'),
+                    icon: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Evaluar',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(
@@ -450,8 +476,14 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.clear),
-                    label: const Text('Borrar'),
+                    icon: const Icon(
+                      Icons.clear,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Borrar',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       padding: const EdgeInsets.symmetric(

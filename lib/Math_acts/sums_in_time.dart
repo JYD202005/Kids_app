@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../logic/life_point.dart';
 import '../animations/animations.dart';
 
@@ -86,6 +88,7 @@ class _GamePageState extends State<GamePage> {
       await _player.play(AssetSource('sounds/perder.mp3'));
     } else {
       await _player.play(AssetSource('sounds/ganador.mp3'));
+      await _progressService.updateProgress(userId, gameLevelId);
     }
 
     final stars = StarSystem.calculateStars(points: _score, total: maxScore);
@@ -153,9 +156,22 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'sums_in_time'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _generateNewSum();
   }
@@ -261,7 +277,8 @@ class _GamePageState extends State<GamePage> {
                   children: [
                     const SizedBox(height: 30),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                       decoration: BoxDecoration(
                         color: Colors.deepPurple.shade50.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(18),
@@ -281,7 +298,10 @@ class _GamePageState extends State<GamePage> {
                           const SizedBox(width: 10),
                           Text(
                             'Tiempo: $_timeLeft s',
-                            style: const TextStyle(fontSize: 28, color: Colors.red, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 28,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -289,13 +309,18 @@ class _GamePageState extends State<GamePage> {
                     const SizedBox(height: 20),
                     Card(
                       elevation: 8,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       color: Colors.white.withOpacity(0.95),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 18),
                         child: Text(
                           '¿Cuánto es $_num1 + $_num2?',
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                          style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple),
                         ),
                       ),
                     ),
@@ -306,7 +331,8 @@ class _GamePageState extends State<GamePage> {
                       onChanged: (value) => _input = value,
                       onSubmitted: _checkAnswer,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 28, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         hintText: 'Tu respuesta',
                         filled: true,
@@ -316,9 +342,11 @@ class _GamePageState extends State<GamePage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                          borderSide: const BorderSide(
+                              color: Colors.deepPurple, width: 2),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 18),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -328,14 +356,16 @@ class _GamePageState extends State<GamePage> {
                         icon: const Icon(Icons.play_arrow, color: Colors.white),
                         label: Text(
                           _gameStarted ? 'Reiniciar' : 'Comenzar',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 15),
                           textStyle: const TextStyle(fontSize: 20),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
                           elevation: 6,
                         ),
                       ),

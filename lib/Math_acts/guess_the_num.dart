@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../logic/life_point.dart';
 import '../animations/animations.dart';
 
@@ -11,41 +13,53 @@ class CountObjectsScreen extends StatefulWidget {
   State<CountObjectsScreen> createState() => _CountObjectsScreenState();
 }
 
-  class StarRow extends StatelessWidget {
-    final int stars;
-    const StarRow(this.stars, {super.key});
+class StarRow extends StatelessWidget {
+  final int stars;
+  const StarRow(this.stars, {super.key});
 
-    @override
-    Widget build(BuildContext context) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
-          return Icon(
-            index < stars ? Icons.star : Icons.star_border,
-            color: Colors.amber,
-            size: 32,
-          );
-        }),
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Icon(
+          index < stars ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 32,
+        );
+      }),
+    );
   }
-
+}
 
 class _CountObjectsScreenState extends State<CountObjectsScreen> {
   final AudioPlayer _player = AudioPlayer();
   final Random _random = Random();
   late LifePointManager _lifeManager;
-  
+
   late List<int> _numbers; // lista de números del 1 al 10 en orden aleatorio
   int _currentIndex = 0;
   List<int> _options = [];
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'guess_the_num'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _numbers = List.generate(10, (i) => i + 1)..shuffle(); // 1 al 10
-    int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _numbers.length);
+    int stars = StarSystem.calculateStars(
+        points: _lifeManager.points, total: _numbers.length);
     _generateOptions();
   }
 
@@ -94,18 +108,17 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
       _currentIndex = (_currentIndex + 1) % _numbers.length;
       _generateOptions();
     });
-
   }
 
-
-
-
- void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _numbers.length,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -145,10 +158,12 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -163,10 +178,12 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -206,7 +223,8 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -221,8 +239,14 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -285,8 +309,10 @@ class _CountObjectsScreenState extends State<CountObjectsScreen> {
                     onPressed: () => _onOptionTap(value),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     child: Text(
                       '$value',

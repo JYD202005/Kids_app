@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
 import 'dart:math';
@@ -34,21 +36,31 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
     _EmojiItem('🧀', 'QUESO'),
   ];
 
-  final List<String> _letters = ['P', 'M', 'G', 'B', 'C', 'U', 'L','Q'];
+  final List<String> _letters = ['P', 'M', 'G', 'B', 'C', 'U', 'L', 'Q'];
   final List<_EmojiItem> _options = [];
   List<_EmojiItem> _correctAnswers = [];
   final Set<_EmojiItem> _selectedAnswers = {};
   late LifePointManager _lifeManager;
   int _currentIndex = 0;
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'match_emoji'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _setupRound();
   }
-
-  
 
   Future<void> _playSound(String name) async {
     await _player.stop();
@@ -79,7 +91,7 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
     _options.addAll(extraOptions);
     _options.shuffle();
 
-     _playLetter(currentLetter);
+    _playLetter(currentLetter);
 
     setState(() {});
   }
@@ -95,8 +107,8 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
       if (_selectedAnswers.containsAll(_correctAnswers)) {
         _lifeManager.addPoint();
 
-          // Espera para permitir que se escuche el audio de "correcto"
-          await Future.delayed(const Duration(milliseconds: 700));
+        // Espera para permitir que se escuche el audio de "correcto"
+        await Future.delayed(const Duration(milliseconds: 700));
 
         if (_lifeManager.points == _letters.length) {
           await _playSound('ganador');
@@ -122,12 +134,15 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
     setState(() {});
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _letters.length,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -167,10 +182,12 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -184,10 +201,12 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -228,7 +247,8 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -243,8 +263,14 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -286,13 +312,15 @@ class _EmojiByLetterGameState extends State<EmojiByLetterGame> {
               const SizedBox(height: 24),
               Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: BouncingCard(
                     child: Text(
                       currentLetter,
-                      style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 64, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+
 //Puntos Locales no de la clase
 class GuessTheLetterScreen extends StatefulWidget {
   const GuessTheLetterScreen({super.key});
@@ -10,24 +13,24 @@ class GuessTheLetterScreen extends StatefulWidget {
   State<GuessTheLetterScreen> createState() => _GuessTheLetterScreenState();
 }
 
-  class StarRow extends StatelessWidget {
-    final int stars;
-    const StarRow(this.stars, {super.key});
+class StarRow extends StatelessWidget {
+  final int stars;
+  const StarRow(this.stars, {super.key});
 
-    @override
-    Widget build(BuildContext context) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
-          return Icon(
-            index < stars ? Icons.star : Icons.star_border,
-            color: Colors.amber,
-            size: 32,
-          );
-        }),
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Icon(
+          index < stars ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 32,
+        );
+      }),
+    );
   }
+}
 
 class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
   final AudioPlayer _player = AudioPlayer();
@@ -36,9 +39,22 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
   List<String> _options = [];
   late LifePointManager _lifeManager;
 
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'first_let'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _items = _generateGameItems();
     _generateOptions();
@@ -48,18 +64,18 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
     return [
       _GameItem(emoji: '🍎', word: 'Manzana'),
       _GameItem(emoji: '🎂', word: 'Pastel'),
-      _GameItem(emoji: '🚗', word: 'Auto'),      // A
+      _GameItem(emoji: '🚗', word: 'Auto'), // A
       _GameItem(emoji: '🎲', word: 'Dado'),
-      _GameItem(emoji: '🏫', word: 'Escuela'),   // E
+      _GameItem(emoji: '🏫', word: 'Escuela'), // E
       _GameItem(emoji: '🌸', word: 'Flor'),
       _GameItem(emoji: '🍦', word: 'Helado'),
       _GameItem(emoji: '💡', word: 'Lámpara'),
-      _GameItem(emoji: '🧊', word: 'Iglú'),      // I
+      _GameItem(emoji: '🧊', word: 'Iglú'), // I
       _GameItem(emoji: '☁️', word: 'Nube'),
       _GameItem(emoji: '🐶', word: 'Perro'),
       _GameItem(emoji: '🎵', word: 'Musica'),
       _GameItem(emoji: '☀️', word: 'Sol'),
-      _GameItem(emoji: '🍇', word: 'Uva'),       // U
+      _GameItem(emoji: '🍇', word: 'Uva'), // U
       _GameItem(emoji: '📚', word: 'Libro'),
       _GameItem(emoji: '🐞', word: 'Bicho'),
       _GameItem(emoji: '🏠', word: 'Casa'),
@@ -73,10 +89,10 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
       _GameItem(emoji: '😊', word: 'Feliz'),
       _GameItem(emoji: '🗺️', word: 'Mapa'),
       _GameItem(emoji: '🛥️', word: 'Yate'),
-      _GameItem(emoji: '⏰', word: 'Alarma'),    // A
+      _GameItem(emoji: '⏰', word: 'Alarma'), // A
       _GameItem(emoji: '🚀', word: 'Cohete'),
       _GameItem(emoji: '🔑', word: 'Llave'),
-      _GameItem(emoji: '🐻', word: 'Oso'),      // O
+      _GameItem(emoji: '🐻', word: 'Oso'), // O
     ];
   }
 
@@ -118,7 +134,8 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
 
   void _onLetterTap(String selectedLetter) async {
     await _playLetter(selectedLetter); // Reproduce el sonido de la letra
-    await Future.delayed(const Duration(milliseconds: 750)); // Espera a que suene
+    await Future.delayed(
+        const Duration(milliseconds: 750)); // Espera a que suene
 
     final correct = _items[_currentIndex].word[0].toUpperCase();
     if (selectedLetter == correct) {
@@ -127,18 +144,25 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
       if (_lifeManager.points == _items.length) {
         await _playWin();
         CelebrationOverlay.show(context, win: true);
-        int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
+        int stars = StarSystem.calculateStars(
+            points: _lifeManager.points, total: _items.length);
+        await _progressService.updateProgress(userId, gameLevelId);
+
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (_) => AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
                 Text(
                   '¡Felicidades!',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.amber),
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber),
                 ),
                 SizedBox(height: 8),
                 Text('🎉', style: TextStyle(fontSize: 48)),
@@ -152,7 +176,10 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 Text(
                   '¡Respondiste todas las palabras correctamente!\n\nPuntaje: ${_lifeManager.points} ⭐',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 22,
+                      color: Colors.deepPurple,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -162,10 +189,12 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Jugar otra vez', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: const Text('Jugar otra vez',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -180,10 +209,12 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(Icons.exit_to_app),
-                label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: const Text('Salir',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -201,18 +232,23 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
         // Perdiste
         await _playLose();
         CelebrationOverlay.show(context, win: false);
-        int stars = StarSystem.calculateStars(points: _lifeManager.points, total: _items.length);
+        int stars = StarSystem.calculateStars(
+            points: _lifeManager.points, total: _items.length);
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (_) => AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
                 Text(
                   '¡Inténtalo de nuevo!',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.redAccent),
                 ),
                 SizedBox(height: 8),
                 Text('😔', style: TextStyle(fontSize: 48)),
@@ -226,7 +262,10 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 Text(
                   'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 22,
+                      color: Colors.deepPurple,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -236,10 +275,12 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Intentar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: const Text('Intentar de nuevo',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -254,10 +295,12 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(Icons.exit_to_app),
-                label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: const Text('Salir',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -308,7 +351,8 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -323,8 +367,14 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -377,7 +427,8 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                       item.emoji,
                       style: TextStyle(
                         fontSize: 90,
-                        color: Colors.primaries[_currentIndex % Colors.primaries.length],
+                        color: Colors
+                            .primaries[_currentIndex % Colors.primaries.length],
                       ),
                     ),
                   ),
@@ -387,7 +438,8 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
               // Palabra incompleta
               Text(
                 missingWord,
-                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
               // Opciones de letras
@@ -398,8 +450,10 @@ class _GuessTheLetterScreenState extends State<GuessTheLetterScreen> {
                   return ElevatedButton(
                     onPressed: () => _onLetterTap(letter),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.primaries[letter.codeUnitAt(0) % Colors.primaries.length],
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      backgroundColor: Colors.primaries[
+                          letter.codeUnitAt(0) % Colors.primaries.length],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

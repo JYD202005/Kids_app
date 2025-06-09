@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 
 class ConfigView extends StatefulWidget {
   const ConfigView({super.key});
@@ -8,14 +10,60 @@ class ConfigView extends StatefulWidget {
 }
 
 class _ConfigViewState extends State<ConfigView> {
-  // Simulación de progreso y puntos (puedes conectar esto con tu sistema real)
-  int totalActivities = 10;
-  int points = 6; // Cambia este valor para probar la barra de progreso
+  final int totalGames = 13;
+  final int maxAttemptsPerGame = 5;
+  final int totalStarsDisplay = 10;
+
+  int attemptsPlayed = 0;
+  int points = 0;
+  bool loading = true;
+
+  final progressService = ProgressService();
+  final storage = CodigoLocalService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  // Ejemplo: suma de puntos reales (estrellas)
+  Future<void> _loadProgress() async {
+    // OJO: Cambia por tu método real de obtener el userId
+    String userId = await storage.obtenerCodigo() ?? '';
+    (); // tu método local
+
+    final progress = await progressService.getProgress(userId);
+    if (progress != null) {
+      setState(() {
+        points = progress['points'] ?? 0;
+        // Suma todos los intentos de todos los juegos
+        Map timesPlayedMap = progress['times_played'] ?? {};
+        attemptsPlayed =
+            timesPlayedMap.values.fold<int>(0, (a, b) => a + (b as int));
+        loading = false;
+      });
+    } else {
+      setState(() {
+        points = 0;
+        attemptsPlayed = 0;
+        loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    double progress = points / totalActivities;
+    int totalAttempts = totalGames * maxAttemptsPerGame;
+    double progress = attemptsPlayed / totalAttempts;
+    if (progress > 1.0) progress = 1.0;
+    int starsEarned = (progress * totalStarsDisplay).round();
 
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -98,7 +146,7 @@ class _ConfigViewState extends State<ConfigView> {
                   child: Column(
                     children: [
                       Text(
-                        '¡Tu progreso!',
+                        '¡Progreso del pequeño!',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -134,7 +182,8 @@ class _ConfigViewState extends State<ConfigView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 28),
+                              Icon(Icons.emoji_events,
+                                  color: Colors.amber.shade700, size: 28),
                               const SizedBox(width: 8),
                               Text(
                                 '${(progress * 100).toInt()}%',
@@ -149,20 +198,37 @@ class _ConfigViewState extends State<ConfigView> {
                         ],
                       ),
                       const SizedBox(height: 18),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          totalActivities,
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Icon(
-                              index < points ? Icons.star : Icons.star_border,
-                              color: Colors.amber,
-                              size: 28,
+                      // --- Estrellas responsivas ---
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final totalWidth = constraints.maxWidth;
+                          final int totalStars = totalStarsDisplay;
+                          const double starSpacing = 4;
+                          double starSize =
+                              ((totalWidth - (starSpacing * (totalStars - 1))) /
+                                      totalStars)
+                                  .clamp(12.0, 36.0);
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              totalStars,
+                              (index) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 1.8),
+                                child: Icon(
+                                  index < starsEarned
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: starSize,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
+                      // --- Fin estrellas responsivas ---
                     ],
                   ),
                 ),
@@ -171,23 +237,73 @@ class _ConfigViewState extends State<ConfigView> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: ListView(
-                    children: [
-                      _buildActivityTile(
-                        icon: Icons.menu_book,
-                        color: Colors.purpleAccent,
-                        title: 'Lectura',
-                        subtitle: 'Progreso en actividades de lectura',
-                        progress: 0.7,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.orangeAccent,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'En caso de Error Contactar:',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepOrange,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'leerysumar@gmail.com',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepOrange,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'o al: +1 (704) 298-3910',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepOrange,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      _buildActivityTile(
-                        icon: Icons.calculate,
-                        color: Colors.blueAccent,
-                        title: 'Matemáticas',
-                        subtitle: 'Progreso en actividades de matemáticas',
-                        progress: 0.5,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -196,14 +312,14 @@ class _ConfigViewState extends State<ConfigView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.settings, color: Colors.deepPurple.shade300, size: 32),
+                    Icon(Icons.settings, color: Colors.blue, size: 32),
                     const SizedBox(width: 8),
                     Text(
                       'Centro de control',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple.shade700,
+                        color: Colors.blue,
                         shadows: const [
                           Shadow(
                             blurRadius: 8,

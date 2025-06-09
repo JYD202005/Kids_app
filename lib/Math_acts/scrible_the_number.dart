@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../animations/animations.dart';
 import '../logic/life_point.dart';
 
@@ -30,10 +32,22 @@ class _NumberWordGameState extends State<NumberWordGame> {
   List<String?> _currentAnswer = [];
   List<bool> _usedLetters = [];
   late LifePointManager _lifeManager;
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'scrible_the_number'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _setupNewRound();
   }
@@ -57,7 +71,8 @@ class _NumberWordGameState extends State<NumberWordGame> {
       pool.addAll(List.generate(count, (_) => letter));
     });
 
-    List<String> allLetters = List.generate(26, (i) => String.fromCharCode(65 + i));
+    List<String> allLetters =
+        List.generate(26, (i) => String.fromCharCode(65 + i));
 
     while (pool.length < 12) {
       final randomLetter = (allLetters..shuffle()).first;
@@ -86,10 +101,15 @@ class _NumberWordGameState extends State<NumberWordGame> {
       if (_currentAnswer[i] != null) {
         String letterToRemove = _currentAnswer[i]!;
 
-        int index = _letterPool.asMap().entries.firstWhere(
-          (entry) => entry.value == letterToRemove && _usedLetters[entry.key],
-          orElse: () => MapEntry(-1, ''),
-        ).key;
+        int index = _letterPool
+            .asMap()
+            .entries
+            .firstWhere(
+              (entry) =>
+                  entry.value == letterToRemove && _usedLetters[entry.key],
+              orElse: () => MapEntry(-1, ''),
+            )
+            .key;
 
         if (index != -1) {
           setState(() {
@@ -144,12 +164,15 @@ class _NumberWordGameState extends State<NumberWordGame> {
     }
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _numbers.length,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -189,10 +212,12 @@ class _NumberWordGameState extends State<NumberWordGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.refresh),
-            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Jugar de nuevo',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -206,10 +231,12 @@ class _NumberWordGameState extends State<NumberWordGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Salir',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -270,7 +297,8 @@ class _NumberWordGameState extends State<NumberWordGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -285,8 +313,14 @@ class _NumberWordGameState extends State<NumberWordGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -350,7 +384,8 @@ class _NumberWordGameState extends State<NumberWordGame> {
                     ),
                     child: Text(
                       _currentAnswer[index] ?? '_',
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 28, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -370,19 +405,23 @@ class _NumberWordGameState extends State<NumberWordGame> {
                       final letter = _letterPool[index];
                       final isUsed = _usedLetters[index];
                       return ElevatedButton(
-                        onPressed: isUsed ? null : () => _onLetterSelected(index),
+                        onPressed:
+                            isUsed ? null : () => _onLetterSelected(index),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isUsed
                               ? Colors.grey.withOpacity(0.4)
-                              : Colors.primaries[letter.codeUnitAt(0) % Colors.primaries.length],
+                              : Colors.primaries[letter.codeUnitAt(0) %
+                                  Colors.primaries.length],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                         ),
                         child: Text(
                           letter,
-                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 20, color: Colors.white),
                         ),
                       );
                     }),

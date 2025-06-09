@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import '../logic/life_point.dart';
 import '../animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -20,10 +22,22 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
   bool _isReplacingNumber = false;
   late LifePointManager _lifeManager;
   final AudioPlayer _audioPlayer = AudioPlayer(); // Agregado para el audio
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'magic'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
     _startNewGame();
     // Reproducir audio al entrar
@@ -102,12 +116,15 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
     );
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: 1,
     );
-
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,

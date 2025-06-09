@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Logins/guardadolocal.dart';
+import 'package:kids_apps2/progress.dart';
 import 'package:signature/signature.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../animations/animations.dart';
@@ -33,8 +35,8 @@ final Map<String, List<Offset>> numberKeyPoints = {
   '4': [
     Offset(0.25, 0.55), // Centro izquierda
     Offset(0.75, 0.55), // Centro derecha
-    Offset(0.7, 0.32),  // Arriba centro
-    Offset(0.7, 0.78),  // Abajo centro
+    Offset(0.7, 0.32), // Arriba centro
+    Offset(0.7, 0.78), // Abajo centro
   ],
   // Ajustes para el número 5:
   '5': [
@@ -56,12 +58,25 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
   final List<String> _numbers = ['1', '2', '3', '4', '5'];
   int _currentIndex = 0;
   late LifePointManager _lifeManager;
-  final SignatureController _controller = SignatureController(penStrokeWidth: 5);
+  final SignatureController _controller =
+      SignatureController(penStrokeWidth: 5);
   final AudioPlayer _player = AudioPlayer();
+  String userId = 'asereje'; // ⚠️ aquí debes poner el UID del usuario
+  String gameLevelId = 'draw_number'; // por ejemplo este nombre de nivel
+  final storage = CodigoLocalService();
+  late ProgressService _progressService;
+  void codigo() async {
+    String codigo = await storage.obtenerCodigo() ?? '';
+    setState(() {
+      userId = codigo;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    codigo();
+    _progressService = ProgressService();
     _lifeManager = LifePointManager();
   }
 
@@ -172,11 +187,15 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
     return percentTouched > 0.7;
   }
 
-  void _showEndDialog({required bool won}) {
+  void _showEndDialog({required bool won}) async {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
       total: _numbers.length,
     );
+    if (won) {
+      // Guardamos el progreso SOLO si se ganó
+      await _progressService.updateProgress(userId, gameLevelId);
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -218,7 +237,8 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             onPressed: () {
               Navigator.of(context).pop();
@@ -235,7 +255,8 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             onPressed: () {
               Navigator.of(context).pop();
@@ -313,7 +334,8 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -328,8 +350,14 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -371,11 +399,17 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
               const SizedBox(height: 16),
               Text(
                 'Trazar el número:',
-                style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 28,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
               Text(
                 currentNumber,
-                style: const TextStyle(fontSize: 96, fontWeight: FontWeight.bold, color: Colors.amber),
+                style: const TextStyle(
+                    fontSize: 96,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amber),
               ),
               const SizedBox(height: 8),
               Stack(
@@ -420,8 +454,10 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
                     label: const Text('Evaluar'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     onPressed: _checkTracing,
                   ),
@@ -431,8 +467,10 @@ class _NumberTracingGameState extends State<NumberTracingGame> {
                     label: const Text('Borrar'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     onPressed: () => setState(() => _controller.clear()),
                   ),
