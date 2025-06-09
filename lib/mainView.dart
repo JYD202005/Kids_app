@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_apps2/MathView%202.dart';
 import 'package:kids_apps2/Views/columns/math_columns.dart';
 import 'package:kids_apps2/Views/columns/read_columns.dart';
 import 'package:kids_apps2/ReadView.dart';
@@ -307,6 +308,15 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   const MathView()),
+                                        );
+                                        setState(() {});
+                                      }
+                                      if (index == 1) {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const MathViewdos()),
                                         );
                                         setState(() {});
                                       }

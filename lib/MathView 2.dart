@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
-import 'package:kids_apps2/Math_acts/guess_the_num.dart';
-import 'package:kids_apps2/Math_acts/numbers.dart';
-import 'package:kids_apps2/Math_acts/scrible_the_number.dart';
+import 'package:kids_apps2/Math_acts/magic.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
 import 'animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class MathView extends StatelessWidget {
-  const MathView({super.key});
+class MathViewdos extends StatelessWidget {
+  const MathViewdos({super.key});
 
   // Lista de imágenes para las tarjetas (estructura simple)
   static const List<String> _images = [
-    'assets/images/math/globo-uno-r.png',
-    'assets/images/math/0-100-r.png',
-    'assets/images/math/3_manzanas-r.png',
-    'assets/images/math/escribir_1-r.png',
+    'assets/images/math/manos-num-r.png',
+    'assets/images/math/7_dedos-r.png',
+    'assets/images/math/magic.png'
   ];
 
   // Método para reproducir el sonido de selección
@@ -68,22 +65,22 @@ class MathView extends StatelessWidget {
                               fontSize: 28,
                               color: Colors.red,
                               fontWeight: FontWeight.bold)),
-                      Text(" = ",
+                      Text(" + ",
                           style: TextStyle(
                               fontSize: 28,
                               color: Colors.black,
                               fontWeight: FontWeight.bold)),
-                      Text("U",
+                      Text("2",
                           style: TextStyle(
                               fontSize: 28,
                               color: Colors.blue,
                               fontWeight: FontWeight.bold)),
-                      Text("N",
+                      Text("=",
                           style: TextStyle(
                               fontSize: 28,
                               color: Colors.green,
                               fontWeight: FontWeight.bold)),
-                      Text("O",
+                      Text("3",
                           style: TextStyle(
                               fontSize: 28,
                               color: Colors.red,
@@ -105,30 +102,29 @@ class MathView extends StatelessWidget {
                           key: ValueKey(img),
                           onTap: () async {
                             await _playSeleccionar(); // <-- Reproduce el sonido antes de navegar
-
-                            if (img == 'assets/images/math/3_manzanas-r.png') {
+                            if (img == 'assets/images/math/manos-num-r.png') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const CountObjectsScreen()),
+                                        const GuessTheSumScreen()),
                               );
                             }
 
-                            if (img == 'assets/images/math/escribir_1-r.png') {
+                            if (img == 'assets/images/math/7_dedos-r.png') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const NumberWordGame()),
+                                        const GuessTheHandsScreen()),
                               );
                             }
-                            if (img == 'assets/images/math/globo-uno-r.png') {
+                            if (img == 'assets/images/math/magic.png') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const NumbersScreen()),
+                                        const MagicSquareGame()),
                               );
                             }
                           },
