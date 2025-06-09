@@ -9,12 +9,47 @@ import 'dart:ui'; // para usar Offset
 
 
 final Map<String, List<Offset>> letterKeyPoints = {
-  // Ejemplo para la letra A (ajusta estos valores para cada letra)
-  'A': [Offset(0.5, 0.15), Offset(0.25, 0.85), Offset(0.75, 0.85), Offset(0.5, 0.55)],
-  'B': [Offset(0.25, 0.15), Offset(0.75, 0.15), Offset(0.25, 0.55), Offset(0.75, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85)],
-  'C': [Offset(0.75, 0.15), Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85)],
-  'D': [Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.15), Offset(0.75, 0.85)],
-  'E': [Offset(0.75, 0.15), Offset(0.25, 0.15), Offset(0.25, 0.55), Offset(0.25, 0.85), Offset(0.75, 0.85), Offset(0.5, 0.55)],
+  // Ajustes para la letra A:
+  'A': [
+    Offset(0.5, 0.30),
+    Offset(0.18, 0.78),
+    Offset(0.82, 0.78),
+    Offset(0.5, 0.63),
+  ],
+  // Ajustes para la letra B:
+  'B': [
+    Offset(0.25, 0.31),
+    Offset(0.75, 0.31),
+    Offset(0.25, 0.55),
+    Offset(0.75, 0.55),
+    Offset(0.25, 0.75),
+    Offset(0.75, 0.75),
+  ],
+  // Ajustes para la letra C:
+  'C': [
+    Offset(0.75, 0.42),
+    Offset(0.25, 0.36),
+    Offset(0.25, 0.55),
+    Offset(0.25, 0.73),
+    Offset(0.75, 0.76),
+  ],
+  // Ajustes para la letra D:
+  'D': [
+    Offset(0.25, 0.35),
+    Offset(0.25, 0.55),
+    Offset(0.25, 0.80),
+    Offset(0.75, 0.35),
+    Offset(0.75, 0.75),
+  ],
+  // Ajustes para la letra E:
+  'E': [
+    Offset(0.75, 0.32), // Arriba derecha (bajado un buen cacho)
+    Offset(0.25, 0.32), // Arriba izquierda (bajado un buen cacho)
+    Offset(0.25, 0.55),
+    Offset(0.25, 0.78), // Abajo izquierda (subido un poquito)
+    Offset(0.75, 0.78), // Abajo derecha (subido un poquito)
+    Offset(0.5, 0.55),
+  ],
 };
 
 
@@ -57,6 +92,12 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
         _showEndDialog(won: true);
         return;
       }
+      setState(() {
+        _controller.clear();
+        if (_currentIndex < _letters.length - 1) {
+          _currentIndex++;
+        }
+      });
     } else {
       await _playSound('error');
       _lifeManager.loseLife();
@@ -66,11 +107,11 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
         _showEndDialog(won: false);
         return;
       }
+      setState(() {
+        _controller.clear();
+        // No incrementa _currentIndex, repite la misma letra
+      });
     }
-    setState(() {
-      _controller.clear();
-      _currentIndex++;
-    });
   }
 
   bool _evaluateTracing() {
@@ -85,11 +126,47 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
     final keyPoints = letterKeyPoints[currentLetter];
     if (keyPoints == null) return false;
 
-    const double minDistance = 30.0;
+    // Tamaño del canvas y fuente (debe coincidir con los usados en build)
+    final double canvasSize = 320;
+    final double fontSize = 200;
+
+    // Calcula el tamaño real de la letra
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: currentLetter,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade300,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final letterWidth = textPainter.width;
+    final letterHeight = textPainter.height;
+
+    // Offset de la letra en el canvas
+    final letterOffset = Offset(
+      (canvasSize - letterWidth) / 2,
+      (canvasSize - letterHeight) / 2,
+    );
+
+    // Convierte los puntos del trazo a coordenadas relativas (0..1) respecto a la letra
+    List<Offset> relativePoints = points.map((p) {
+      final local = p - letterOffset;
+      return Offset(
+        (local.dx / letterWidth).clamp(0.0, 1.0),
+        (local.dy / letterHeight).clamp(0.0, 1.0),
+      );
+    }).toList();
+
+    // Ajusta el radio de detección (proporcional al tamaño de la letra)
+    const double minDistance = 0.10; // 10% del ancho/alto de la letra
     int touchedPoints = 0;
 
     for (var keyPoint in keyPoints) {
-      for (var point in points) {
+      for (var point in relativePoints) {
         final dx = point.dx - keyPoint.dx;
         final dy = point.dy - keyPoint.dy;
         final distance = math.sqrt(dx * dx + dy * dy);
@@ -247,17 +324,61 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red)),
-                    ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red)),
-                    const SizedBox(width: 24),
-                    Text(
-                      'Puntos: ${_lifeManager.points}',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
+                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        const SizedBox(width: 18),
+                        const Icon(Icons.star, color: Colors.amber, size: 28),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Puntos: ${_lifeManager.points}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -300,26 +421,8 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                       backgroundColor: Colors.transparent,
                     ),
                   ),
-                  // Visualización de puntos clave
-                  ...keyPoints.map((point) {
-                    // point.dx y point.dy son relativos (0..1)
-                    final absolute = Offset(
-                      letterOffset.dx + point.dx * letterWidth - 5, // -5 para centrar el círculo
-                      letterOffset.dy + point.dy * letterHeight - 5,
-                    );
-                    return Positioned(
-                      left: absolute.dx,
-                      top: absolute.dy,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    );
-                  }),
+                  // Los puntos clave ya no se muestran visualmente
+                  // ...keyPoints.map((point) { ... }) eliminado
                 ],
               ),
               const SizedBox(height: 16),

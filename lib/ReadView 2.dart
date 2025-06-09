@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kids_apps2/Read_acts/match_emoji_with_letter.dart';
-import 'package:kids_apps2/Read_acts/draw_letter.dart';
 import 'animations/animations.dart';
-import 'Read_acts/leters.dart'; // <-- Importa NumbersScreen
-import 'Read_acts/memory.dart';     // <-- Importa MemoryScreen
-import 'Read_acts/first_let.dart';
-import 'Read_acts/scrible_the_thing.dart';
+import 'Read_acts/proun_vocals.dart'; // <-- Importa NumbersScreen
+import 'Read_acts/not_vocals.dart';     // <-- Importa MemoryScreen
 import 'package:audioplayers/audioplayers.dart';
 
-class LettersScreen extends StatelessWidget {
-  const LettersScreen({super.key});
+class LettersScreen2 extends StatelessWidget {
+  const LettersScreen2({super.key});
 
   // Método para reproducir el sonido de selección
   Future<void> _playSeleccionar() async {
@@ -19,12 +15,8 @@ class LettersScreen extends StatelessWidget {
 
   // Lista de imágenes para las tarjetas
   static const List<String> _images = [
-    'assets/images/read/globo-abc-r.png',
-    'assets/images/read/A-a-r.png',
-    'assets/images/read/A_de_avion-r.png',
-    'assets/images/read/escribir_A-r.png',
-    'assets/images/read/B_de_bebe-r.png',
-    'assets/images/read/Cuadros_letras-r.png',
+    'assets/images/read/aeiou-r.png',
+    'assets/images/read/noVocal-r.png',
   ];
 
   // Colores para las letras del título
@@ -106,37 +98,17 @@ class LettersScreen extends StatelessWidget {
                           key: ValueKey(img),
                           onTap: () async {
                             await _playSeleccionar(); // <-- Reproduce el sonido antes de navegar
-                            if (img == 'assets/images/read/globo-abc-r.png') {
+                            if (img == 'assets/images/read/aeiou-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const NumbersScreen()),
+                                MaterialPageRoute(builder: (context) => PronounceVowelsScreen()),
                               );
-                            } else if (img == 'assets/images/read/Cuadros_letras-r.png') {
+                            } else if (img == 'assets/images/read/noVocal-r.png') {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const MemoramaScreen()),
+                                MaterialPageRoute(builder: (context) => const NotVowelsGame()),
                               );
-                            } else if (img == 'assets/images/read/A_de_avion-r.png') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const GuessTheLetterScreen()),
-                              );
-                            }else if (img == 'assets/images/read/escribir_A-r.png') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ThingWordGame()),
-                              );
-                            }else if (img == 'assets/images/read/B_de_bebe-r.png') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const EmojiByLetterGame()),
-                              );
-                            }else if (img == 'assets/images/read/A-a-r.png') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LetterTracingGame()),
-                              );
-                            }                          
+                            }                     
                           },
                           child: Container(
                             margin: const EdgeInsets.all(4),

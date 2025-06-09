@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
 import 'package:kids_apps2/Math_acts/magic.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
+import 'package:kids_apps2/Math_acts/sums_in_time.dart';
 import 'animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -12,7 +13,8 @@ class MathViewdos extends StatelessWidget {
   static const List<String> _images = [
     'assets/images/math/manos-num-r.png',
     'assets/images/math/7_dedos-r.png',
-    'assets/images/math/magic.png'
+    'assets/images/math/magic-r.png',
+    'assets/images/math/tiempo-r.png'
   ];
 
   // Método para reproducir el sonido de selección
@@ -119,12 +121,20 @@ class MathViewdos extends StatelessWidget {
                                         const GuessTheHandsScreen()),
                               );
                             }
-                            if (img == 'assets/images/math/magic.png') {
+                            if (img == 'assets/images/math/magic-r.png') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const MagicSquareGame()),
+                              );
+                            }
+                            if (img == 'assets/images/math/tiempo-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                         GamePage()),
                               );
                             }
                           },
@@ -151,10 +161,13 @@ class MathViewdos extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: Transform.scale(
-                                  scale:
-                                      4.5, // Ajusta este valor para hacer la imagen más grande
-                                  child:
-                                      Image.asset(img, width: 70, height: 70),
+                                  scale: img == 'assets/images/math/magic-r.png' ? 3.2 : 4.5, // Ajusta solo magic.png
+                                  child: Image.asset(
+                                    img,
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.contain, // <-- Esto asegura que no se salga
+                                  ),
                                 ),
                               ),
                             ),

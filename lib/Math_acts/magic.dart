@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../logic/life_point.dart';
+import '../animations/animations.dart';
 
 class MagicSquareGame extends StatefulWidget {
   const MagicSquareGame({super.key});
@@ -15,10 +17,12 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
   bool isCompleted = false;
   String validationResult = '';
   bool _isReplacingNumber = false;
+  late LifePointManager _lifeManager;
 
   @override
   void initState() {
     super.initState();
+    _lifeManager = LifePointManager();
     _startNewGame();
   }
 
@@ -39,6 +43,7 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
       moves = 0;
       isCompleted = false;
       validationResult = '';
+      _lifeManager.reset();
     });
   }
 
@@ -47,13 +52,34 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
       validationResult = magicSquare.getVerificationStatus();
     });
 
+    bool correcto = validationResult.startsWith('¡Correcto!');
+    if (correcto) {
+      _lifeManager.addPoint();
+      if (_lifeManager.points == 1) {
+        CelebrationOverlay.show(context, win: true);
+        _showEndDialog(won: true);
+      } else {
+        _showEndDialog(won: true);
+      }
+    } else {
+      _lifeManager.loseLife();
+      if (_lifeManager.isGameOver) {
+        _showEndDialog(won: false);
+      } else {
+        _showResultDialog(validationResult);
+      }
+    }
+  }
+
+  void _showResultDialog(String result) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: const Text('Resultado de verificación'),
           content: Text(
-            validationResult,
+            result,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           actions: [
@@ -69,9 +95,83 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
     );
   }
 
+  void _showEndDialog({required bool won}) {
+    final stars = StarSystem.calculateStars(
+      points: _lifeManager.points,
+      total: 1,
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              won ? '¡Felicidades!' : '¡Inténtalo de nuevo!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: won ? Colors.amber : Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(won ? '🎉' : '💔', style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 8),
+            StarRow(stars),
+          ],
+        ),
+        content: Text(
+          won
+              ? '¡Completaste el cuadrado mágico!\n\nPuntaje: ${_lifeManager.points} ⭐'
+              : 'Te quedaste sin vidas.\n\nPuntaje: ${_lifeManager.points} ⭐',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.deepPurple,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Jugar de nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                _startNewGame();
+              });
+            },
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            icon: const Icon(Icons.exit_to_app),
+            label: const Text('Salir', style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   double _calculateGridSize(BuildContext context, BoxConstraints constraints) {
-    double maxSize = 320.0; // <--- Cambiado de 450 a 320
-    double minSize = 100.0; // <--- Tamaño mínimo
+    double maxSize = 320.0;
+    double minSize = 100.0;
     double availableSize = min(
       constraints.maxWidth * 0.8,
       constraints.maxHeight * 0.8,
@@ -82,6 +182,11 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
 
   @override
   Widget build(BuildContext context) {
+    final stars = StarSystem.calculateStars(
+      points: _lifeManager.points,
+      total: 1,
+    );
+
     return Scaffold(
       body: SafeArea(
         child: Stack(children: [
@@ -96,55 +201,117 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Column(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context),
-                      color: Colors.lightBlue,
-                      iconSize: 32,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(context),
+                    color: Colors.lightBlue,
+                    iconSize: 32,
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
                         icon: const Icon(
                           Icons.refresh,
                           color: Colors.orange,
                         ),
-                        onPressed: _startNewGame),
-                    PopupMenuButton<List<int>>(
-                      icon: const Icon(
-                        Icons.tune,
-                        color: Colors.tealAccent,
+                        onPressed: _startNewGame,
                       ),
-                      onSelected: (numbers) {
-                        _startNewGame(numbers: numbers);
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                          child: Text('1 al 9 (suma mágica 15)'),
+                      PopupMenuButton<List<int>>(
+                        icon: const Icon(
+                          Icons.tune,
+                          color: Colors.tealAccent,
                         ),
-                        const PopupMenuItem(
-                          value: [2, 4, 6, 8, 10, 12, 14, 16, 18],
-                          child: Text('Pares del 2 al 18'),
-                        ),
-                        const PopupMenuItem(
-                          value: [10, 11, 12, 13, 14, 15, 16, 17, 18],
-                          child: Text('10 al 18'),
-                        ),
-                        const PopupMenuItem(
-                          value: [5, 10, 15, 20, 25, 30, 35, 40, 45],
-                          child: Text('Múltiplos de 5'),
+                        onSelected: (numbers) {
+                          _startNewGame(numbers: numbers);
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                            child: Text('1 al 9 (suma mágica 15)'),
+                          ),
+                          const PopupMenuItem(
+                            value: [2, 4, 6, 8, 10, 12, 14, 16, 18],
+                            child: Text('Pares del 2 al 18'),
+                          ),
+                          const PopupMenuItem(
+                            value: [10, 11, 12, 13, 14, 15, 16, 17, 18],
+                            child: Text('10 al 18'),
+                          ),
+                          const PopupMenuItem(
+                            value: [5, 10, 15, 20, 25, 30, 35, 40, 45],
+                            child: Text('Múltiplos de 5'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
+                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        const SizedBox(width: 18),
+                        const Icon(Icons.star, color: Colors.amber, size: 28),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Puntos: ${_lifeManager.points}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                            shadows: [
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, -2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(2, 2)),
+                              Shadow(
+                                  blurRadius: 0,
+                                  color: Colors.white,
+                                  offset: Offset(-2, 2)),
+                              Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                        StarRow(stars),
+                      ],
+                    ),
+                  ),
                 ),
-              ]),
+              ),
               Container(
                 color: Colors.white.withOpacity(0.5),
                 child: Column(
@@ -165,24 +332,30 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 ),
               ),
               Expanded(
-                // hace que el GridView se ajuste
                 child: Center(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      double gridSize =
-                          _calculateGridSize(context, constraints);
+                      double gridSize = _calculateGridSize(context, constraints);
                       return Container(
                         width: gridSize,
                         height: gridSize,
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.blue, width: 2),
+                          borderRadius: BorderRadius.circular(18),
+                          color: Colors.white.withOpacity(0.7),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             childAspectRatio: 1.0,
                             crossAxisSpacing: 4.0,
@@ -201,7 +374,7 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 ),
               ),
               const SizedBox(height: 10),
-              TextButton.icon(
+              ElevatedButton.icon(
                 onPressed: _verifySquare,
                 label: const Text('Verificar', style: TextStyle(fontSize: 24)),
                 style: ElevatedButton.styleFrom(
@@ -210,6 +383,8 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  elevation: 6,
                 ),
                 icon: const Icon(Icons.manage_search, size: 28),
               ),
@@ -227,7 +402,6 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
               ),
               const SizedBox(height: 10),
               Expanded(
-                // Esto permite que la lista de números sea scrollable si es necesario
                 flex: 0,
                 child: SingleChildScrollView(
                   child: Wrap(
@@ -241,8 +415,7 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                             if (!availableNumbers.contains(numberFromGrid)) {
                               for (int r = 0; r < magicSquare.size; r++) {
                                 for (int c = 0; c < magicSquare.size; c++) {
-                                  if (magicSquare.grid[r][c] ==
-                                      numberFromGrid) {
+                                  if (magicSquare.grid[r][c] == numberFromGrid) {
                                     magicSquare.grid[r][c] = null;
                                   }
                                 }
@@ -319,24 +492,18 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
             // Si la celda tenía un número:
             if (cellValue != null) {
               int valor = magicSquare.grid[row][col] = number;
-              print(valor);
               if (cellValue == valor) {
-                print('resuelto');
                 magicSquare.grid[row][col] = null;
                 availableNumbers.add(cellValue);
                 moves++;
               } else {
-                print("→ Sustituyendo un número");
-
                 magicSquare.grid[row][col] = null;
                 magicSquare.grid[row][col] = number;
                 moves++;
                 availableNumbers.add(cellValue);
-                print(cellValue);
               }
             } else {
               // CASO: celda vacía
-              print("→ Movimiento normal a celda vacía");
               magicSquare.grid[row][col] = number;
               moves++;
             }
@@ -356,8 +523,16 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 ? Colors.greenAccent
                 : cellValue == null
                     ? Colors.grey[200]
-                    : Colors.primaries[cellValue! %
-                        Colors.primaries.length], // <--- aquí está tu cambio
+                    : Colors.primaries[cellValue! % Colors.primaries.length],
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              if (candidateData.isNotEmpty)
+                BoxShadow(
+                  color: Colors.greenAccent.withOpacity(0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+            ],
           ),
           child: Center(
             child: FittedBox(
@@ -367,7 +542,14 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // ← para que contraste con los colores
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      color: Colors.black26,
+                      offset: Offset(1, 2),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -388,12 +570,9 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
                 magicSquare.grid[row][col] = null;
                 availableNumbers.add(cellValue);
                 moves++;
-                print('yo elimine');
               });
             },
-            onDragCompleted: () {
-              // Si el DragTarget acepta, no necesitas hacer nada aquí
-            },
+            onDragCompleted: () {},
           );
         } else {
           return content;
@@ -407,9 +586,15 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
       width: 45,
       height: 45,
       decoration: BoxDecoration(
-        color: Colors
-            .primaries[number % Colors.primaries.length], // Aquí el cambio
+        color: Colors.primaries[number % Colors.primaries.length],
         borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(1, 2),
+          ),
+        ],
       ),
       child: Center(
         child: Text(
@@ -418,6 +603,13 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
             fontSize: 20,
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            shadows: [
+              Shadow(
+                blurRadius: 4,
+                color: Colors.black26,
+                offset: Offset(1, 2),
+              ),
+            ],
           ),
         ),
       ),
@@ -517,5 +709,24 @@ class MagicSquare {
     return errors.isEmpty
         ? '¡Correcto! Todas las sumas son $magicConstant'
         : errors.join('\n');
+  }
+}
+
+class StarRow extends StatelessWidget {
+  final int stars;
+  const StarRow(this.stars, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Icon(
+          index < stars ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 32,
+        );
+      }),
+    );
   }
 }

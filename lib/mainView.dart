@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:kids_apps2/MathView%202.dart';
+import 'package:kids_apps2/ReadView%202.dart';
 import 'package:kids_apps2/Views/columns/math_columns.dart';
 import 'package:kids_apps2/Views/columns/read_columns.dart';
 import 'package:kids_apps2/ReadView.dart';
 import 'package:kids_apps2/MathView.dart';
+import 'package:kids_apps2/configView.dart';
 import 'package:kids_apps2/logic/music.dart';
 import 'animations/animations.dart';
+import 'dart:math';
 
 class ActivitiesScreen extends StatefulWidget {
   const ActivitiesScreen({super.key});
@@ -106,7 +109,176 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                         icon: const Icon(Icons.settings),
                         color: Colors.red,
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () async {
+                          final result = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              final rnd = Random();
+                              final a = rnd.nextInt(8) + 2; // 2 a 9
+                              final b = rnd.nextInt(8) + 2; // 2 a 9
+                              final TextEditingController controller =
+                                  TextEditingController();
+                              String? errorText;
+
+                              return StatefulBuilder(
+                                builder: (context, setState) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.amber[50],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                      side: const BorderSide(color: Colors.deepPurple, width: 2),
+                                    ),
+                                    title: Row(
+                                      children: [
+                                        const Icon(Icons.lock, color: Colors.deepPurple, size: 32),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Filtro parental',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.deepPurple,
+                                            fontSize: 22,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          'Responde la multiplicación para continuar:',
+                                          style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 18),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                                          decoration: BoxDecoration(
+                                            color: Colors.deepPurple.shade100,
+                                            borderRadius: BorderRadius.circular(16),
+                                            border: Border.all(color: Colors.deepPurple, width: 2),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Colors.orangeAccent,
+                                                blurRadius: 8,
+                                                offset: Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                '$a',
+                                                style: const TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.deepPurple,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              const Text(
+                                                '×',
+                                                style: TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.orange,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                '$b',
+                                                style: const TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.deepPurple,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              const Text(
+                                                '= ?',
+                                                style: TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.orange,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        TextField(
+                                          controller: controller,
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                          decoration: InputDecoration(
+                                            hintText: 'Respuesta',
+                                            errorText: errorText,
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(14),
+                                              borderSide: const BorderSide(color: Colors.deepPurple),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(14),
+                                              borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                                            ),
+                                          ),
+                                          onChanged: (_) {
+                                            if (errorText != null) {
+                                              setState(() => errorText = null);
+                                            }
+                                          },
+                                          onSubmitted: (_) {},
+                                        ),
+                                      ],
+                                    ),
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    actions: [
+                                      TextButton.icon(
+                                        icon: const Icon(Icons.cancel, color: Colors.redAccent),
+                                        label: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                      ),
+                                      ElevatedButton.icon(
+                                        icon: const Icon(Icons.check, color: Colors.white),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.deepPurple,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                        ),
+                                        label: const Text('Aceptar', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        onPressed: () {
+                                          final answer = int.tryParse(controller.text.trim());
+                                          if (answer == a * b) {
+                                            Navigator.of(context).pop(true);
+                                          } else {
+                                            setState(() {
+                                              errorText = 'Respuesta incorrecta';
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          );
+
+                          if (result == true) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ConfigView()),
+                            );
+                          }
+                        },
                       ),
                       IconButton(
                         icon: Icon(
@@ -223,6 +395,15 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   const LettersScreen()),
+                                        );
+                                        setState(() {});
+                                      }
+                                      if (index == 1) {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const LettersScreen2()),
                                         );
                                         setState(() {});
                                       }

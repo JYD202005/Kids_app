@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Math_acts/draw_number.dart';
 import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
 import 'package:kids_apps2/Math_acts/guess_the_num.dart';
 import 'package:kids_apps2/Math_acts/numbers.dart';
@@ -129,6 +130,14 @@ class MathView extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const NumbersScreen()),
+                              );
+                            }
+                            if (img == 'assets/images/math/0-100-r.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NumberTracingGame()),
                               );
                             }
                           },
