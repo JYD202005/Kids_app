@@ -6,8 +6,6 @@ import '../logic/life_point.dart';
 import 'dart:math' as math;
 import 'dart:ui'; // para usar Offset
 
-
-
 final Map<String, List<Offset>> letterKeyPoints = {
   // Ajustes para la letra A:
   'A': [
@@ -52,21 +50,18 @@ final Map<String, List<Offset>> letterKeyPoints = {
   ],
 };
 
-
-
 class LetterTracingGame extends StatefulWidget {
   const LetterTracingGame({super.key});
   @override
   State<LetterTracingGame> createState() => _LetterTracingGameState();
 }
 
-
-
 class _LetterTracingGameState extends State<LetterTracingGame> {
   final List<String> _letters = ['A', 'B', 'C', 'D', 'E'];
   int _currentIndex = 0;
   late LifePointManager _lifeManager;
-  final SignatureController _controller = SignatureController(penStrokeWidth: 5);
+  final SignatureController _controller =
+      SignatureController(penStrokeWidth: 5);
   final AudioPlayer _player = AudioPlayer();
 
   @override
@@ -182,9 +177,6 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
     return percentTouched > 0.7;
   }
 
-
-
-
   void _showEndDialog({required bool won}) {
     final stars = StarSystem.calculateStars(
       points: _lifeManager.points,
@@ -231,7 +223,8 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.deepPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             onPressed: () {
               Navigator.of(context).pop();
@@ -248,7 +241,8 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             onPressed: () {
               Navigator.of(context).pop();
@@ -326,7 +320,8 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(18),
@@ -341,8 +336,14 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...List.generate(_lifeManager.lives, (i) => const Icon(Icons.favorite, color: Colors.red, size: 28)),
-                        ...List.generate(3 - _lifeManager.lives, (i) => const Icon(Icons.favorite_border, color: Colors.red, size: 28)),
+                        ...List.generate(
+                            _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite,
+                                color: Colors.red, size: 28)),
+                        ...List.generate(
+                            3 - _lifeManager.lives,
+                            (i) => const Icon(Icons.favorite_border,
+                                color: Colors.red, size: 28)),
                         const SizedBox(width: 18),
                         const Icon(Icons.star, color: Colors.amber, size: 28),
                         const SizedBox(width: 6),
@@ -384,11 +385,17 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
               const SizedBox(height: 16),
               Text(
                 'Trazar la letra:',
-                style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 28,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
               Text(
                 currentLetter,
-                style: const TextStyle(fontSize: 96, fontWeight: FontWeight.bold, color: Colors.amber),
+                style: const TextStyle(
+                    fontSize: 96,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amber),
               ),
               const SizedBox(height: 8),
               Stack(
@@ -434,8 +441,10 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                     label: const Text('Evaluar'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     onPressed: _checkTracing,
                   ),
@@ -445,8 +454,10 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
                     label: const Text('Borrar'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     onPressed: () => setState(() => _controller.clear()),
                   ),
@@ -458,7 +469,6 @@ class _LetterTracingGameState extends State<LetterTracingGame> {
       ),
     );
   }
-
 }
 
 class StarRow extends StatelessWidget {
