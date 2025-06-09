@@ -207,25 +207,6 @@ class _InicioState extends State<Inicio> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ActivitiesScreen()),
-                      );
-                    },
-                    child: Text(
-                      'SALTAR LOGIN',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red[600],
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
