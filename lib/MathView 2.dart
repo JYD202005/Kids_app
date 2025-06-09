@@ -15,6 +15,7 @@ class MathViewdos extends StatelessWidget {
     'assets/images/math/7_dedos-r.png',
     'assets/images/math/magic-r.png',
     'assets/images/math/tiempo-r.png'
+
   ];
 
   // Método para reproducir el sonido de selección
@@ -135,7 +136,7 @@ class MathViewdos extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                          GamePage()),
-                              );
+                            );
                             }
                           },
                           child: Container(

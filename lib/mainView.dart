@@ -366,14 +366,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   ),
                   const SizedBox(height: 24),
                   // Grid de actividades
-                  Expanded(
+                  Flexible(
                     child: Column(
                       children: [
                         // Lectura y Matemáticas
                         Row(
                           children: [
                             // Columna izquierda: Lectura
-                            Expanded(
+                            Flexible(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: ReadDataMain.tiles
@@ -469,7 +469,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                             ),
                             const SizedBox(width: 24),
                             // Columna derecha: Matemáticas
-                            Expanded(
+                            Flexible(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: MathDataMain.tiles
@@ -525,7 +525,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                       ),
                                       child: Row(
                                         children: [
-                                          Expanded(
+                                          Flexible(
                                             child: RichText(
                                               textAlign: TextAlign.right,
                                               text: TextSpan(

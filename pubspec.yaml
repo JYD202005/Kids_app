@@ -119,9 +119,14 @@ flutter:
     - assets/sounds_numbers/80.mp3
     - assets/sounds_numbers/90.mp3
     - assets/sounds_numbers/100.mp3
+<<<<<<< HEAD
     - assets/images/math/magic-r.png
     - assets/images/read/aeiou-r.png
     - assets/images/read/noVocal-r.png
     - assets/images/math/tiempo-r.png
+=======
+    - assets/images/math/magic.png
+    - assets/images/math/time.png
+>>>>>>> c6caea696f573c5f92d4880609d3320bb43c5947
 
     
