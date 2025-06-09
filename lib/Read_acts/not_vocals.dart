@@ -14,7 +14,7 @@ class NotVowelsGame extends StatefulWidget {
 class _NotVowelsGameState extends State<NotVowelsGame> {
   final AudioPlayer _player = AudioPlayer();
   final List<String> _allLetters = [
-    'A', 'B', 'C', 'E', 'I', 'L', 'O', 'P', 'U', 'M'
+    'A', 'B', 'C', 'E', 'I', 'L', 'O', 'P', 'U', 'M', 'G', 'D', 'F', 'H', 'J', 'K', 'N', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'
   ];
   final List<String> _vowels = ['A', 'E', 'I', 'O', 'U'];
   final Random _random = Random();
@@ -31,6 +31,10 @@ class _NotVowelsGameState extends State<NotVowelsGame> {
     super.initState();
     _lifeManager = LifePointManager();
     _setupRound();
+    // Reproducir audio al entrar
+    Future.delayed(const Duration(milliseconds: 400), () {
+      _player.play(AssetSource('sounds/Cual de estas letras es una vocal.mp3'));
+    });
   }
 
   void _setupRound() {

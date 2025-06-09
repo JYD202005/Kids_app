@@ -525,35 +525,41 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                       ),
                                       child: Row(
                                         children: [
-                                          Flexible(
-                                            child: RichText(
-                                              textAlign: TextAlign.right,
-                                              text: TextSpan(
-                                                style: const TextStyle(
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'ComicNeue',
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: RichText(
+                                                textAlign: TextAlign.right,
+                                                text: TextSpan(
+                                                  style: const TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'ComicNeue',
+                                                  ),
+                                                  children:
+                                                      (tile['text'] ?? '123')
+                                                          .split('')
+                                                          .map((char) {
+                                                    return TextSpan(
+                                                      text: char,
+                                                      style: TextStyle(
+                                                          color: _colorForLetter(
+                                                              char)),
+                                                    );
+                                                  }).toList(),
                                                 ),
-                                                children:
-                                                    (tile['text'] ?? '123')
-                                                        .split('')
-                                                        .map((char) {
-                                                  return TextSpan(
-                                                    text: char,
-                                                    style: TextStyle(
-                                                        color: _colorForLetter(
-                                                            char)),
-                                                  );
-                                                }).toList(),
                                               ),
                                             ),
                                           ),
                                           const SizedBox(width: 12),
-                                          Image.asset(
-                                            tile['icon'] ??
-                                                'assets/images/mathcol.png',
-                                            width: 70,
-                                            height: 70,
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Image.asset(
+                                              tile['icon'] ??
+                                                  'assets/images/mathcol.png',
+                                              width: 70,
+                                              height: 70,
+                                            ),
                                           ),
                                         ],
                                       ),

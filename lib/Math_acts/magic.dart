@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../logic/life_point.dart';
 import '../animations/animations.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MagicSquareGame extends StatefulWidget {
   const MagicSquareGame({super.key});
@@ -18,12 +19,17 @@ class _MagicSquareGameState extends State<MagicSquareGame> {
   String validationResult = '';
   bool _isReplacingNumber = false;
   late LifePointManager _lifeManager;
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Agregado para el audio
 
   @override
   void initState() {
     super.initState();
     _lifeManager = LifePointManager();
     _startNewGame();
+    // Reproducir audio al entrar
+    Future.delayed(const Duration(milliseconds: 400), () {
+      _audioPlayer.play(AssetSource('sounds/num_magic.mp3'));
+    });
   }
 
   void _startNewGame({List<int>? numbers}) {

@@ -79,8 +79,9 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     cards.shuffle();
     _cards = cards;
     _lifeManager.reset();
-
+    
     // Mostrar todos los pares boca arriba al inicio
+    if (!mounted) return; // Verifica si el widget está montado
     setState(() {
       for (var card in _cards) {
         card.isFlipped = true;
@@ -90,6 +91,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
 
     // Espera 2 segundos y voltea todas las cartas
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
     setState(() {
       for (var card in _cards) {
         card.isFlipped = false;
@@ -102,7 +104,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
     if (_wait || _cards[index].isFlipped || _cards[index].isMatched || _showingPairs) return;
 
     await _playClick();
-
+    if (!mounted) return;
     setState(() {
       _cards[index].isFlipped = true;
     });
@@ -148,7 +150,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
       _selectedIndex1 = null;
       _selectedIndex2 = null;
       _wait = false;
-
+      if (!mounted) return;
       setState(() {});
     }
   }
@@ -206,6 +208,7 @@ class _MemoramaScreenState extends State<MemoramaScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop();
+              if (!mounted) return;
               setState(() {
                 _generateCards();
               });
