@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_apps2/Math_acts/faster.dart';
 import 'package:kids_apps2/Math_acts/guess_the_hands.dart';
 import 'package:kids_apps2/Math_acts/magic.dart';
 import 'package:kids_apps2/Math_acts/sums.dart';
@@ -12,7 +13,8 @@ class MathViewdos extends StatelessWidget {
   static const List<String> _images = [
     'assets/images/math/manos-num-r.png',
     'assets/images/math/7_dedos-r.png',
-    'assets/images/math/magic.png'
+    'assets/images/math/magic.png',
+    'assets/images/math/time.png',
   ];
 
   // Método para reproducir el sonido de selección
@@ -125,6 +127,13 @@ class MathViewdos extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const MagicSquareGame()),
+                              );
+                            }
+                            if (img == 'assets/images/math/time.png') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => GamePage()),
                               );
                             }
                           },
